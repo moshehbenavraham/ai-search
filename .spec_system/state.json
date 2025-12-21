@@ -20,7 +20,9 @@
   "completed_sessions": [
     "phase00-session01-dependency-and-configuration",
     "phase00-session02-service-layer-implementation",
-    "phase00-session03-pydantic-schemas"
+    "phase00-session03-pydantic-schemas",
+    "phase00-session04-search-and-extract-routes",
+    "phase00-session05-crawl-map-and-error-handling"
   ],
   "next_session_history": [
     {
@@ -36,6 +38,16 @@
     {
       "date": "2025-12-21",
       "session": "phase00-session03-pydantic-schemas",
+      "status": "completed"
+    },
+    {
+      "date": "2025-12-21",
+      "session": "phase00-session04-search-and-extract-routes",
+      "status": "completed"
+    },
+    {
+      "date": "2025-12-21",
+      "session": "phase00-session05-crawl-map-and-error-handling",
       "status": "completed"
     }
   ]

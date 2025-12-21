@@ -413,3 +413,25 @@ class MapResponse(BaseModel):
         default=0,
         description="Total number of URLs discovered",
     )
+
+
+# =============================================================================
+# Error Response Schema
+# =============================================================================
+
+
+class ErrorResponse(BaseModel):
+    """Standard error response schema for Tavily API errors.
+
+    Provides a consistent error format for all Tavily-related errors,
+    enabling clients to handle errors in a uniform way.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    error_code: str = Field(description="Machine-readable error code")
+    message: str = Field(description="Human-readable error message")
+    details: dict[str, Any] | None = Field(
+        default=None,
+        description="Additional error details",
+    )
