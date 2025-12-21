@@ -8,7 +8,7 @@
     "0": {
       "name": "Core Setup",
       "description": "Backend Tavily API integration with SDK, service layer, schemas, routes, and testing",
-      "status": "not_started",
+      "status": "in_progress",
       "session_count": 6
     },
     "1": {
@@ -17,6 +17,14 @@
       "session_count": 0
     }
   },
-  "completed_sessions": [],
-  "next_session_history": []
+  "completed_sessions": [
+    "phase00-session01-dependency-and-configuration"
+  ],
+  "next_session_history": [
+    {
+      "date": "2025-12-21",
+      "session": "phase00-session01-dependency-and-configuration",
+      "status": "completed"
+    }
+  ]
 }

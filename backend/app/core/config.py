@@ -6,6 +6,7 @@ from pydantic import (
     AnyUrl,
     BeforeValidator,
     EmailStr,
+    Field,
     HttpUrl,
     PostgresDsn,
     computed_field,
@@ -13,6 +14,29 @@ from pydantic import (
 )
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing_extensions import Self
+
+
+# Tavily API configuration settings
+# Used for web search, content extraction, and site mapping features
+class TavilySettings(BaseSettings):
+    """Configuration for Tavily API integration.
+
+    Environment variables:
+        TAVILY_API_KEY: Required API key from tavily.com
+        TAVILY_TIMEOUT: Request timeout in seconds (default: 60)
+        TAVILY_PROXY: Optional HTTP proxy URL for API requests
+    """
+
+    model_config = SettingsConfigDict(env_prefix="TAVILY_")
+
+    # Required: Tavily API key (obtain from tavily.com)
+    api_key: str
+
+    # Optional: Request timeout in seconds
+    timeout: int = 60
+
+    # Optional: HTTP proxy URL for API requests
+    proxy: str | None = None
 
 
 def parse_cors(v: Any) -> list[str] | str:
@@ -114,6 +138,11 @@ class Settings(BaseSettings):
         )
 
         return self
+
+    # Tavily API settings (nested model)
+    tavily: TavilySettings = Field(
+        default_factory=lambda: TavilySettings()  # type: ignore[call-arg]
+    )
 
 
 settings = Settings()  # type: ignore
