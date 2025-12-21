@@ -110,7 +110,9 @@ class CrawlResult(BaseModel):
     model_config = ConfigDict(extra="allow")
 
     url: str = Field(description="URL of the crawled page")
-    raw_content: str = Field(description="Extracted text content from the page")
+    raw_content: str | None = Field(
+        default=None, description="Extracted text content from the page"
+    )
     metadata: dict[str, Any] | None = Field(
         default=None,
         description="Additional metadata about the crawled page",

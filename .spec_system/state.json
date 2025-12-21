@@ -2,13 +2,13 @@
   "version": "2.0",
   "project_name": "tavily-app",
   "description": "AI-powered search application using Tavily API",
-  "current_phase": 0,
+  "current_phase": 1,
   "current_session": null,
   "phases": {
     "0": {
       "name": "Core Setup",
       "description": "Backend Tavily API integration with SDK, service layer, schemas, routes, and testing",
-      "status": "in_progress",
+      "status": "complete",
       "session_count": 6
     },
     "1": {
@@ -22,7 +22,8 @@
     "phase00-session02-service-layer-implementation",
     "phase00-session03-pydantic-schemas",
     "phase00-session04-search-and-extract-routes",
-    "phase00-session05-crawl-map-and-error-handling"
+    "phase00-session05-crawl-map-and-error-handling",
+    "phase00-session06-testing-suite"
   ],
   "next_session_history": [
     {
@@ -48,6 +49,11 @@
     {
       "date": "2025-12-21",
       "session": "phase00-session05-crawl-map-and-error-handling",
+      "status": "completed"
+    },
+    {
+      "date": "2025-12-21",
+      "session": "phase00-session06-testing-suite",
       "status": "completed"
     }
   ]

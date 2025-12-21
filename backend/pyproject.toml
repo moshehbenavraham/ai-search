@@ -1,6 +1,6 @@
 [project]
 name = "app"
-version = "0.1.4"
+version = "0.1.5"
 description = ""
 requires-python = ">=3.10,<4.0"
 dependencies = [
@@ -79,3 +79,8 @@ sort = "-Cover"
 
 [tool.coverage.html]
 show_contexts = true
+
+[tool.pytest.ini_options]
+markers = [
+    "integration: marks tests as integration tests that require external API access (deselect with '-m \"not integration\"')",
+]

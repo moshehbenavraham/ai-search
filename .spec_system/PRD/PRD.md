@@ -107,7 +107,7 @@ This system delivers the product via phases. Each phase is implemented via multi
 
 | Phase | Name | Sessions | Status |
 |-------|------|----------|--------|
-| 00 | Core Setup | 6 | Not Started |
+| 00 | Core Setup | 6 | Complete |
 | 01 | Frontend Integration | TBD | Not Started |
 
 ## Phase 00: Core Setup
@@ -174,14 +174,14 @@ Sessions are defined via `/phasebuild` as `session_NN_name.md` stubs under `.spe
 
 ## Success Criteria
 
-### Phase 00 (Backend)
-- [ ] All four Tavily endpoints (search, extract, crawl, map) are functional
-- [ ] Endpoints require valid JWT authentication
-- [ ] All Tavily SDK parameters are exposed via request schemas
-- [ ] Error responses include proper status codes and structured error bodies
-- [ ] Unit tests pass with mocked Tavily responses
-- [ ] Integration tests pass with valid API key
-- [ ] No lint errors or type check failures
+### Phase 00 (Backend) - COMPLETE
+- [x] All four Tavily endpoints (search, extract, crawl, map) are functional
+- [x] Endpoints require valid JWT authentication
+- [x] All Tavily SDK parameters are exposed via request schemas
+- [x] Error responses include proper status codes and structured error bodies
+- [x] Unit tests pass with mocked Tavily responses
+- [x] Integration tests pass with valid API key
+- [x] No lint errors or type check failures
 
 ### Phase 01 (Frontend)
 - [ ] All Tavily features accessible via navigation sidebar
