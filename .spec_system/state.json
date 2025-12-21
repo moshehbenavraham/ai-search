@@ -26,7 +26,8 @@
     "phase00-session05-crawl-map-and-error-handling",
     "phase00-session06-testing-suite",
     "phase01-session01-api-client-and-navigation",
-    "phase01-session02-search-form-and-query"
+    "phase01-session02-search-form-and-query",
+    "phase01-session03-search-results-display"
   ],
   "next_session_history": [
     {
@@ -67,6 +68,11 @@
     {
       "date": "2025-12-21",
       "session": "phase01-session02-search-form-and-query",
+      "status": "completed"
+    },
+    {
+      "date": "2025-12-21",
+      "session": "phase01-session03-search-results-display",
       "status": "completed"
     }
   ]

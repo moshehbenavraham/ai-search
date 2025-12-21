@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod"
+import type { UseMutationResult } from "@tanstack/react-query"
 import { Search } from "lucide-react"
 import { useForm } from "react-hook-form"
 
@@ -32,11 +33,17 @@ import {
   tavilySearchSchema,
 } from "@/lib/schemas/tavily"
 
+type SearchMutation = UseMutationResult<SearchResponse, Error, SearchRequest>
+
 interface SearchFormProps {
   onSearchComplete?: (data: SearchResponse) => void
+  mutation?: SearchMutation
 }
 
-export function SearchForm({ onSearchComplete }: SearchFormProps) {
+export function SearchForm({
+  onSearchComplete,
+  mutation: externalMutation,
+}: SearchFormProps) {
   const form = useForm<SearchFormData>({
     resolver: zodResolver(tavilySearchSchema),
     mode: "onBlur",
@@ -44,9 +51,11 @@ export function SearchForm({ onSearchComplete }: SearchFormProps) {
     defaultValues: searchFormDefaults,
   })
 
-  const mutation = useTavilySearch({
+  const internalMutation = useTavilySearch({
     onSuccess: onSearchComplete,
   })
+
+  const mutation = externalMutation ?? internalMutation
 
   const onSubmit = (data: SearchFormData) => {
     // Build request matching SearchRequest type
