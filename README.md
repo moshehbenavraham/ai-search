@@ -88,11 +88,12 @@ Copy `.env.example` to `.env` and configure:
 
 ## Project Status
 
-**Phase 00 (Core Setup)**: Complete - Backend Tavily integration with all endpoints and tests
+| Phase | Name | Status |
+|-------|------|--------|
+| 00 | Core Setup | Complete |
+| 01 | Frontend Integration | Complete |
 
-**Phase 01 (Frontend Integration)**: Not Started - UI for Tavily features
-
-See [PRD](.spec_system/PRD/PRD.md) for detailed roadmap.
+All MVP features are implemented. See [PRD](.spec_system/PRD/PRD.md) for details.
 
 ## License
 

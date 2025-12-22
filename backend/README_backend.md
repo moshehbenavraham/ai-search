@@ -1,5 +1,40 @@
 # FastAPI Project - Backend
 
+## Tavily Integration
+
+The backend integrates the Tavily AI search API via the official `tavily-python` SDK.
+
+### API Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/v1/tavily/search` | POST | Web search with topic filtering |
+| `/api/v1/tavily/extract` | POST | Extract content from URLs |
+| `/api/v1/tavily/crawl` | POST | Crawl website with instructions |
+| `/api/v1/tavily/map` | POST | Generate sitemap from URL |
+
+All endpoints require JWT authentication.
+
+### Key Files
+
+| File | Purpose |
+|------|---------|
+| `app/services/tavily.py` | TavilyService class with SDK wrapper |
+| `app/schemas/tavily.py` | Pydantic request/response models |
+| `app/api/routes/tavily.py` | API endpoint definitions |
+| `app/api/deps.py` | TavilyDep dependency injection |
+| `tests/api/routes/test_tavily.py` | Endpoint tests |
+
+### Running Tests
+
+```bash
+# All tests
+bash scripts/test.sh
+
+# Tavily tests only
+uv run pytest tests/api/routes/test_tavily.py -v
+```
+
 ## Requirements
 
 * [Docker](https://www.docker.com/).

@@ -2,6 +2,26 @@
 
 The frontend is built with [Vite](https://vitejs.dev/), [React](https://reactjs.org/), [TypeScript](https://www.typescriptlang.org/), [TanStack Query](https://tanstack.com/query), [TanStack Router](https://tanstack.com/router) and [Tailwind CSS](https://tailwindcss.com/).
 
+## Tavily Pages
+
+| Route | File | Description |
+|-------|------|-------------|
+| `/search` | `src/routes/_layout/search.tsx` | Web search with topic/depth filters |
+| `/extract` | `src/routes/_layout/extract.tsx` | URL content extraction (batch support) |
+| `/crawl` | `src/routes/_layout/crawl.tsx` | Website crawling with instructions |
+| `/map` | `src/routes/_layout/map.tsx` | Sitemap generation |
+
+### Tavily Components (`src/components/Tavily/`)
+
+- **SearchForm** - Search query with topic, depth, and domain filters
+- **SearchResultCard** - Individual result with title, snippet, source
+- **ExtractForm** - Multiple URL input with validation
+- **ExtractResultCard** - Extracted content display
+- **CrawlForm** - Crawl parameters (depth, breadth, instructions)
+- **CrawlResultCard** - Crawled page content display
+- **MapForm** - Sitemap generation parameters
+- **MapResultsList** - Discovered URLs list
+
 ## Frontend development
 
 Before you begin, ensure that you have either the Node Version Manager (nvm) or Fast Node Manager (fnm) installed on your system.

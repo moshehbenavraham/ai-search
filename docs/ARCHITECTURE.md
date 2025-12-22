@@ -48,12 +48,26 @@ tavily-app is a full-stack application that wraps the Tavily AI search API with 
 - **Purpose**: Type-safe API calls
 - **Tech**: OpenAPI TypeScript generator
 
-#### Routes (`src/routes/`)
-- **Purpose**: Page components and routing
-- **Tech**: TanStack Router (file-based)
+#### Tavily Routes (`src/routes/_layout/`)
+| Route | File | Purpose |
+|-------|------|---------|
+| `/search` | `search.tsx` | Web search with topic filtering |
+| `/extract` | `extract.tsx` | URL content extraction |
+| `/crawl` | `crawl.tsx` | Website crawling with instructions |
+| `/map` | `map.tsx` | Sitemap generation |
 
-#### Components (`src/components/`)
-- **Purpose**: Reusable UI elements
+#### Tavily Components (`src/components/Tavily/`)
+- **SearchForm** - Search parameters with topic/depth/filters
+- **SearchResultCard** - Individual search result display
+- **ExtractForm** - URL input with batch support
+- **ExtractResultCard** - Extracted content display
+- **CrawlForm** - Crawl parameters with depth/instructions
+- **CrawlResultCard** - Crawled page display
+- **MapForm** - Sitemap generation parameters
+- **MapResultsList** - URL list from sitemap
+
+#### UI Components (`src/components/ui/`)
+- **Purpose**: Reusable UI primitives
 - **Tech**: shadcn/ui (Radix primitives) + Tailwind CSS
 
 ## Tech Stack Rationale

@@ -1,0 +1,49 @@
+AUDIT REPORT | tavily-app | 2025-12-22 10:20 (FIXES APPLIED)
+Git: dirty (3 files modified) | Stack(s): TypeScript + React + Vite (frontend), Python 3.10+ + FastAPI (backend)
+
+[SETUP] npm (frontend), uv (backend) | Linter: ok | Fmt: ok | Types: ok
+  Frontend: Biome 2.3.8, TypeScript 5.9.3, Playwright 1.57.0
+  Backend: Ruff 0.2.2+, MyPy 1.8.0+, Pytest 7.4.3+
+
+[FIXES APPLIED]
+  1. Upgraded SQLModel 0.0.24 -> 0.0.27
+     - Fixed: PydanticDeprecatedSince211 model_fields warning
+     - Bonus: Removed stale "type: ignore" comment in users.py:223
+
+  2. Added pytest warning filters in pyproject.toml
+     - Filtered: starlette PendingDeprecationWarning (python_multipart import)
+     - Filtered: passlib DeprecationWarning (crypt module in Python 3.13)
+
+  Result: Warnings reduced from 17 -> 3 (remaining are intentional security warnings)
+
+[frontend]
+  Fmt: 0 issues | Lint: 0 issues | Types: 0 errors
+  Biome: Checked 102 files, all clean
+  TypeScript: tsc --noEmit passed
+
+[backend]
+  Fmt: 0 issues | Lint: 0 issues | Types: 0 errors
+  Ruff format: 45 files unchanged
+  Ruff check: All checks passed
+  MyPy: Success - no issues found in 45 source files
+  Tests: 85/89 pass, 4 skipped (integration), 3 warnings (expected)
+
+[Remaining Warnings - INTENTIONAL]
+  3 security UserWarnings (do NOT suppress):
+  - SECRET_KEY using default "changethis" value
+  - POSTGRES_PASSWORD using default "changethis" value
+  - FIRST_SUPERUSER_PASSWORD using default "changethis" value
+  These warnings correctly alert about insecure defaults for deployments.
+
+[E2E Tests - frontend]
+  Status: SKIPPED - Playwright tests require running infrastructure
+  Files: login.spec.ts, sign-up.spec.ts, reset-password.spec.ts, user-settings.spec.ts
+
+SUMMARY: P1 ok | P2 clean | P3 pass | Warnings: 17 -> 3 (fixed 14)
+
+FILES MODIFIED:
+  - backend/pyproject.toml (sqlmodel version + pytest filterwarnings)
+  - backend/app/api/routes/users.py (removed stale type: ignore)
+  - backend/uv.lock (dependency sync)
+
+Saved: .spec_system/audit/tavily-app_20251222_1020.txt

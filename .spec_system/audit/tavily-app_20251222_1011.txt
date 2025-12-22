@@ -1,0 +1,36 @@
+AUDIT REPORT | tavily-app | 2025-12-22 10:11
+Git: clean | Stack(s): TypeScript + React + Vite (frontend), Python 3.10+ + FastAPI (backend)
+
+[SETUP] npm (frontend), uv (backend) | Linter: ok | Fmt: ok | Types: ok
+  Frontend: Biome 2.3.8, TypeScript 5.9.3, Playwright 1.57.0
+  Backend: Ruff 0.2.2+, MyPy 1.8.0+, Pytest 7.4.3+
+
+[frontend]
+  Fmt: 0 fixed | Lint: 0 remain | Types: 0 errors
+  Biome: Checked 102 files, no fixes applied
+  TypeScript: tsc --noEmit passed
+
+[backend]
+  Fmt: 0 fixed (45 files unchanged) | Lint: 0 remain | Types: 0 errors
+  Ruff format: 45 files left unchanged
+  Ruff check: All checks passed
+  MyPy: Success - no issues found in 45 source files
+  Tests: 85/89 pass, 4 skipped (integration tests)
+
+[E2E Tests - frontend]
+  Status: SKIPPED - Playwright tests require running infrastructure
+  Reason: Tests configured for localhost:5173 with backend dependency
+  Files: login.spec.ts, sign-up.spec.ts, reset-password.spec.ts, user-settings.spec.ts
+
+[Warnings - Backend Tests]
+  17 deprecation/pending warnings (non-blocking):
+  - PendingDeprecationWarning: starlette.formparsers (use python_multipart)
+  - UserWarning: SECRET_KEY/POSTGRES_PASSWORD/FIRST_SUPERUSER_PASSWORD using default values
+  - DeprecationWarning: 'crypt' module deprecated in Python 3.13
+  - PydanticDeprecatedSince211: Accessing model_fields on instance
+
+SUMMARY: P1 ok | P2 0/0 fixed (clean) | P3 pass (backend), skip (frontend E2E)
+
+TODO:
+  - Run E2E tests with: docker compose up -d && cd frontend && npx playwright test
+  - Consider updating passlib for Python 3.13 compatibility

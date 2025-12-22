@@ -15,7 +15,7 @@ dependencies = [
     "alembic<2.0.0,>=1.12.1",
     "httpx<1.0.0,>=0.25.1",
     "psycopg[binary]<4.0.0,>=3.1.13",
-    "sqlmodel<1.0.0,>=0.0.21",
+    "sqlmodel<1.0.0,>=0.0.26",
     # Pin bcrypt until passlib supports the latest
     "bcrypt==4.3.0",
     "pydantic-settings<3.0.0,>=2.2.1",
@@ -83,4 +83,9 @@ show_contexts = true
 [tool.pytest.ini_options]
 markers = [
     "integration: marks tests as integration tests that require external API access (deselect with '-m \"not integration\"')",
+]
+filterwarnings = [
+    # Third-party library warnings that cannot be fixed in this project
+    "ignore:Please use `import python_multipart`:PendingDeprecationWarning:starlette",
+    "ignore:'crypt' is deprecated:DeprecationWarning:passlib",
 ]
