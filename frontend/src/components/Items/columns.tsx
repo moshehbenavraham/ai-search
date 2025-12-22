@@ -5,7 +5,9 @@ import type { ItemPublic } from "@/client"
 import { Button } from "@/components/ui/button"
 import { useCopyToClipboard } from "@/hooks/useCopyToClipboard"
 import { cn } from "@/lib/utils"
+import { ContentTypeBadge } from "./ContentTypeBadge"
 import { ItemActionsMenu } from "./ItemActionsMenu"
+import { SourceUrlCell } from "./SourceUrlCell"
 
 function CopyId({ id }: { id: string }) {
   const [copiedText, copy] = useCopyToClipboard()
@@ -60,6 +62,18 @@ export const columns: ColumnDef<ItemPublic>[] = [
         </span>
       )
     },
+  },
+  {
+    accessorKey: "content_type",
+    header: "Type",
+    cell: ({ row }) => (
+      <ContentTypeBadge contentType={row.original.content_type} />
+    ),
+  },
+  {
+    accessorKey: "source_url",
+    header: "Source",
+    cell: ({ row }) => <SourceUrlCell url={row.original.source_url} />,
   },
   {
     id: "actions",

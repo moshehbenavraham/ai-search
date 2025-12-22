@@ -1,10 +1,10 @@
 # PRD Phase 02: Saving Results to Items
 
-**Status**: In Progress
+**Status**: Complete
 **Sessions**: 3
 **Estimated Duration**: 1-2 days
 
-**Progress**: 2/3 sessions (67%)
+**Progress**: 3/3 sessions (100%)
 
 ---
 
@@ -20,7 +20,7 @@ Phase 02 enables users to save Tavily search, extract, crawl, and map results to
 |---------|------|--------|------------|-----------|
 | 01 | Backend Model and Migration | Complete | 22 | 2025-12-22 |
 | 02 | Frontend Hooks and Save Buttons | Complete | 24 | 2025-12-22 |
-| 03 | Items Page Enhancements | Not Started | ~20 | - |
+| 03 | Items Page Enhancements | Complete | 22 | 2025-12-22 |
 
 ---
 
@@ -41,11 +41,20 @@ Phase 02 enables users to save Tavily search, extract, crawl, and map results to
 - Toast notifications for success/error feedback
 - All lint and type checks passing
 
+### Session 03: Items Page Enhancements
+- Created ContentTypeBadge, SourceUrlCell, ContentTypeFilter, ContentPreview, MetadataDisplay components
+- Added content_type and source_url columns to Items table
+- Implemented backend content_type filter parameter
+- Added URL search params for bookmarkable filtered views
+- Enhanced EditItem dialog with Tavily data section (content preview, metadata display)
+- Graceful handling of legacy Items (null content_type)
+- All 85 backend tests passing, frontend build successful
+
 ---
 
 ## Upcoming Sessions
 
-- Session 03: Items Page Enhancements
+None - Phase 02 Complete
 
 ---
 
@@ -117,11 +126,11 @@ New fields added to Item:
 Phase complete when:
 - [x] Item model extended with source_url, content, content_type, metadata fields
 - [x] Database migration applied successfully without data loss
-- [ ] All 3 sessions completed
+- [x] All 3 sessions completed
 - [x] Save buttons functional on all Tavily result components
-- [ ] Saved items appear in Items page with correct data mapping
-- [ ] Items page displays type badges and clickable source links
-- [ ] Content type filter works on Items page
+- [x] Saved items appear in Items page with correct data mapping
+- [x] Items page displays type badges and clickable source links
+- [x] Content type filter works on Items page
 - [x] Toast notifications confirm save success/failure
 - [x] No lint errors or type check failures
 - [x] All existing tests pass

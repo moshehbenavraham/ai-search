@@ -20,7 +20,7 @@
     "2": {
       "name": "Saving Results to Items",
       "description": "Extend Item model, create migration, implement save hooks and buttons, enhance Items page with type badges and filtering",
-      "status": "in_progress",
+      "status": "complete",
       "session_count": 3
     }
   },
@@ -38,7 +38,8 @@
     "phase01-session05-crawl-page",
     "phase01-session06-map-page-and-polish",
     "phase02-session01-backend-model-and-migration",
-    "phase02-session02-frontend-hooks-and-save-buttons"
+    "phase02-session02-frontend-hooks-and-save-buttons",
+    "phase02-session03-items-page-enhancements"
   ],
   "next_session_history": [
     {
@@ -109,6 +110,11 @@
     {
       "date": "2025-12-22",
       "session": "phase02-session02-frontend-hooks-and-save-buttons",
+      "status": "completed"
+    },
+    {
+      "date": "2025-12-22",
+      "session": "phase02-session03-items-page-enhancements",
       "status": "completed"
     }
   ]

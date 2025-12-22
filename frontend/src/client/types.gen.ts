@@ -458,6 +458,7 @@ export type ValidationError = {
 };
 
 export type ItemsReadItemsData = {
+    contentType?: ('search' | 'extract' | 'crawl' | 'map' | null);
     limit?: number;
     skip?: number;
 };

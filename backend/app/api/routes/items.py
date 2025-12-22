@@ -1,5 +1,5 @@
 import uuid
-from typing import Any
+from typing import Any, Literal
 
 from fastapi import APIRouter, HTTPException
 from sqlmodel import func, select
@@ -7,36 +7,41 @@ from sqlmodel import func, select
 from app.api.deps import CurrentUser, SessionDep
 from app.models import Item, ItemCreate, ItemPublic, ItemsPublic, ItemUpdate, Message
 
+ContentTypeFilter = Literal["search", "extract", "crawl", "map"]
+
 router = APIRouter(prefix="/items", tags=["items"])
 
 
 @router.get("/", response_model=ItemsPublic)
 def read_items(
-    session: SessionDep, current_user: CurrentUser, skip: int = 0, limit: int = 100
+    session: SessionDep,
+    current_user: CurrentUser,
+    skip: int = 0,
+    limit: int = 100,
+    content_type: ContentTypeFilter | None = None,
 ) -> Any:
     """
-    Retrieve items.
+    Retrieve items with optional content_type filter.
     """
 
     if current_user.is_superuser:
-        count_statement = select(func.count()).select_from(Item)
-        count = session.exec(count_statement).one()
-        statement = select(Item).offset(skip).limit(limit)
-        items = session.exec(statement).all()
+        base_count = select(func.count()).select_from(Item)
+        base_query = select(Item)
     else:
-        count_statement = (
+        base_count = (
             select(func.count())
             .select_from(Item)
             .where(Item.owner_id == current_user.id)
         )
-        count = session.exec(count_statement).one()
-        statement = (
-            select(Item)
-            .where(Item.owner_id == current_user.id)
-            .offset(skip)
-            .limit(limit)
-        )
-        items = session.exec(statement).all()
+        base_query = select(Item).where(Item.owner_id == current_user.id)
+
+    # Apply content_type filter if provided
+    if content_type is not None:
+        base_count = base_count.where(Item.content_type == content_type)
+        base_query = base_query.where(Item.content_type == content_type)
+
+    count = session.exec(base_count).one()
+    items = session.exec(base_query.offset(skip).limit(limit)).all()
 
     return ItemsPublic(data=items, count=count)
 

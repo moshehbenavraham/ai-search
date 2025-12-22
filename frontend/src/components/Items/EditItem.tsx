@@ -26,9 +26,15 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { LoadingButton } from "@/components/ui/loading-button"
+import { Separator } from "@/components/ui/separator"
 import useCustomToast from "@/hooks/useCustomToast"
 import { handleError } from "@/utils"
+import { ContentPreview } from "./ContentPreview"
+import { ContentTypeBadge } from "./ContentTypeBadge"
+import { MetadataDisplay } from "./MetadataDisplay"
+import { SourceUrlCell } from "./SourceUrlCell"
 
 const formSchema = z.object({
   title: z.string().min(1, { message: "Title is required" }),
@@ -75,6 +81,9 @@ const EditItem = ({ item, onSuccess }: EditItemProps) => {
     mutation.mutate(data)
   }
 
+  const hasTavilyData =
+    item.content_type || item.source_url || item.content || item.item_metadata
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuItem
@@ -84,7 +93,7 @@ const EditItem = ({ item, onSuccess }: EditItemProps) => {
         <Pencil />
         Edit Item
       </DropdownMenuItem>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <DialogHeader>
@@ -123,6 +132,49 @@ const EditItem = ({ item, onSuccess }: EditItemProps) => {
                   </FormItem>
                 )}
               />
+
+              {hasTavilyData && (
+                <>
+                  <Separator className="my-2" />
+
+                  <div className="space-y-4">
+                    <h4 className="text-sm font-medium">Tavily Data</h4>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <Label className="text-muted-foreground">Type</Label>
+                        <div>
+                          <ContentTypeBadge contentType={item.content_type} />
+                        </div>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <Label className="text-muted-foreground">Source</Label>
+                        <div>
+                          <SourceUrlCell url={item.source_url} />
+                        </div>
+                      </div>
+                    </div>
+
+                    {item.content && (
+                      <div className="space-y-1.5">
+                        <Label className="text-muted-foreground">Content</Label>
+                        <ContentPreview content={item.content} />
+                      </div>
+                    )}
+
+                    {item.item_metadata &&
+                      Object.keys(item.item_metadata).length > 0 && (
+                        <div className="space-y-1.5">
+                          <Label className="text-muted-foreground">
+                            Metadata
+                          </Label>
+                          <MetadataDisplay metadata={item.item_metadata} />
+                        </div>
+                      )}
+                  </div>
+                </>
+              )}
             </div>
 
             <DialogFooter>
