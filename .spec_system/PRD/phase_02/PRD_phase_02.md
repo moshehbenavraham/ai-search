@@ -4,7 +4,7 @@
 **Sessions**: 3
 **Estimated Duration**: 1-2 days
 
-**Progress**: 1/3 sessions (33%)
+**Progress**: 2/3 sessions (67%)
 
 ---
 
@@ -19,7 +19,7 @@ Phase 02 enables users to save Tavily search, extract, crawl, and map results to
 | Session | Name | Status | Est. Tasks | Validated |
 |---------|------|--------|------------|-----------|
 | 01 | Backend Model and Migration | Complete | 22 | 2025-12-22 |
-| 02 | Frontend Hooks and Save Buttons | Not Started | ~25 | - |
+| 02 | Frontend Hooks and Save Buttons | Complete | 24 | 2025-12-22 |
 | 03 | Items Page Enhancements | Not Started | ~20 | - |
 
 ---
@@ -33,11 +33,18 @@ Phase 02 enables users to save Tavily search, extract, crawl, and map results to
 - Regenerated frontend TypeScript client
 - All 89 backend tests passing with 90% coverage
 
+### Session 02: Frontend Hooks and Save Buttons
+- Created useSaveToItems TanStack Query mutation hook with cache invalidation
+- Implemented mapper functions for all Tavily result types (search, extract, crawl, map)
+- Added Save buttons to SearchResultCard, SearchResultDetail, ExtractResultCard, CrawlResultCard
+- Added Save All button to MapResultsList
+- Toast notifications for success/error feedback
+- All lint and type checks passing
+
 ---
 
 ## Upcoming Sessions
 
-- Session 02: Frontend Hooks and Save Buttons
 - Session 03: Items Page Enhancements
 
 ---
@@ -111,13 +118,13 @@ Phase complete when:
 - [x] Item model extended with source_url, content, content_type, metadata fields
 - [x] Database migration applied successfully without data loss
 - [ ] All 3 sessions completed
-- [ ] Save buttons functional on all Tavily result components
+- [x] Save buttons functional on all Tavily result components
 - [ ] Saved items appear in Items page with correct data mapping
 - [ ] Items page displays type badges and clickable source links
 - [ ] Content type filter works on Items page
-- [ ] Toast notifications confirm save success/failure
-- [ ] No lint errors or type check failures
-- [ ] All existing tests pass
+- [x] Toast notifications confirm save success/failure
+- [x] No lint errors or type check failures
+- [x] All existing tests pass
 
 ---
 

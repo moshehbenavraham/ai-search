@@ -6,12 +6,16 @@ import {
   ExternalLink,
   FileText,
   Globe,
+  Loader2,
+  Save,
 } from "lucide-react"
 import { useState } from "react"
 
 import type { CrawlResult } from "@/client/types.gen"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { useSaveToItems } from "@/hooks/useSaveToItems"
+import { mapCrawlResultToItem } from "@/lib/tavily-mappers"
 import { cn } from "@/lib/utils"
 
 const CONTENT_PREVIEW_LENGTH = 500
@@ -19,6 +23,7 @@ const CONTENT_PREVIEW_LENGTH = 500
 interface CrawlResultCardProps {
   result: CrawlResult
   index: number
+  baseUrl: string
 }
 
 function extractPath(url: string): string {
@@ -30,15 +35,20 @@ function extractPath(url: string): string {
   }
 }
 
-export function CrawlResultCard({ result, index }: CrawlResultCardProps) {
+export function CrawlResultCard({
+  result,
+  index,
+  baseUrl,
+}: CrawlResultCardProps) {
   const [isExpanded, setIsExpanded] = useState(false)
   const [copied, setCopied] = useState(false)
+  const saveToItems = useSaveToItems()
 
   const content = result.raw_content || ""
   const needsTruncation = content.length > CONTENT_PREVIEW_LENGTH
   const displayContent =
     needsTruncation && !isExpanded
-      ? `${content.slice(0, CONTENT_PREVIEW_LENGTH)}…`
+      ? `${content.slice(0, CONTENT_PREVIEW_LENGTH)}...`
       : content
   const charCount = content.length
   const path = extractPath(result.url)
@@ -47,6 +57,11 @@ export function CrawlResultCard({ result, index }: CrawlResultCardProps) {
     await navigator.clipboard.writeText(content)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
+  }
+
+  const handleSave = () => {
+    const item = mapCrawlResultToItem(result, baseUrl, index)
+    saveToItems.mutate(item)
   }
 
   return (
@@ -151,6 +166,20 @@ export function CrawlResultCard({ result, index }: CrawlResultCardProps) {
         >
           <ExternalLink className="h-3.5 w-3.5" />
           Visit
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-8 gap-1.5 px-3 text-xs"
+          onClick={handleSave}
+          disabled={saveToItems.isPending}
+        >
+          {saveToItems.isPending ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <Save className="h-3.5 w-3.5" />
+          )}
+          Save
         </Button>
       </div>
     </article>

@@ -7,9 +7,10 @@ import { CrawlResultCard } from "./CrawlResultCard"
 
 interface CrawlResultsListProps {
   results: CrawlResult[]
+  baseUrl: string
 }
 
-export function CrawlResultsList({ results }: CrawlResultsListProps) {
+export function CrawlResultsList({ results, baseUrl }: CrawlResultsListProps) {
   if (results.length === 0) {
     return (
       <div className="rounded-xl border border-dashed border-border bg-surface-1 p-8 text-center">
@@ -36,7 +37,12 @@ export function CrawlResultsList({ results }: CrawlResultsListProps) {
       {/* Scrollable results */}
       <div className="max-h-[600px] space-y-4 overflow-y-auto pr-2">
         {results.map((result, index) => (
-          <CrawlResultCard key={result.url} result={result} index={index} />
+          <CrawlResultCard
+            key={result.url}
+            result={result}
+            index={index}
+            baseUrl={baseUrl}
+          />
         ))}
       </div>
     </div>

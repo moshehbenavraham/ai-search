@@ -1,4 +1,11 @@
-import { ExternalLink, FileText, Globe, Star } from "lucide-react"
+import {
+  ExternalLink,
+  FileText,
+  Globe,
+  Loader2,
+  Save,
+  Star,
+} from "lucide-react"
 
 import type { SearchResult } from "@/client/types.gen"
 import { Badge } from "@/components/ui/badge"
@@ -11,10 +18,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { useSaveToItems } from "@/hooks/useSaveToItems"
+import { mapSearchResultToItem } from "@/lib/tavily-mappers"
 import { cn } from "@/lib/utils"
 
 interface SearchResultDetailProps {
   result: SearchResult | null
+  query: string
   open: boolean
   onOpenChange: (open: boolean) => void
 }
@@ -34,9 +44,12 @@ function getScoreBadgeStyle(score: number): string {
 
 export function SearchResultDetail({
   result,
+  query,
   open,
   onOpenChange,
 }: SearchResultDetailProps) {
+  const saveToItems = useSaveToItems()
+
   if (!result) {
     return null
   }
@@ -45,6 +58,11 @@ export function SearchResultDetail({
 
   const handleOpenUrl = () => {
     window.open(result.url, "_blank", "noopener,noreferrer")
+  }
+
+  const handleSave = () => {
+    const item = mapSearchResultToItem(result, query)
+    saveToItems.mutate(item)
   }
 
   return (
@@ -105,6 +123,19 @@ export function SearchResultDetail({
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Close
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={handleSave}
+            disabled={saveToItems.isPending}
+            className="gap-1.5"
+          >
+            {saveToItems.isPending ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Save className="h-4 w-4" />
+            )}
+            Save
           </Button>
           <Button onClick={handleOpenUrl} className="gap-1.5">
             <ExternalLink className="h-4 w-4" />

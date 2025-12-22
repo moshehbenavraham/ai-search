@@ -6,12 +6,16 @@ import {
   Copy,
   ExternalLink,
   Globe,
+  Loader2,
+  Save,
 } from "lucide-react"
 import { useState } from "react"
 
 import type { ExtractResult } from "@/client/types.gen"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { useSaveToItems } from "@/hooks/useSaveToItems"
+import { mapExtractResultToItem } from "@/lib/tavily-mappers"
 import { cn } from "@/lib/utils"
 
 // Maximum characters to show in collapsed state
@@ -45,11 +49,19 @@ function extractDomain(url: string): string {
 export function ExtractResultCard(props: ExtractResultCardProps) {
   const [isExpanded, setIsExpanded] = useState(false)
   const [copied, setCopied] = useState(false)
+  const saveToItems = useSaveToItems()
 
   const handleCopy = async (text: string) => {
     await navigator.clipboard.writeText(text)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
+  }
+
+  const handleSave = () => {
+    if (props.type === "success") {
+      const item = mapExtractResultToItem(props.result)
+      saveToItems.mutate(item)
+    }
   }
 
   // Failed state
@@ -107,7 +119,7 @@ export function ExtractResultCard(props: ExtractResultCardProps) {
   const needsTruncation = content.length > CONTENT_PREVIEW_LENGTH
   const displayContent =
     needsTruncation && !isExpanded
-      ? `${content.slice(0, CONTENT_PREVIEW_LENGTH)}…`
+      ? `${content.slice(0, CONTENT_PREVIEW_LENGTH)}...`
       : content
   const charCount = content.length
 
@@ -204,6 +216,20 @@ export function ExtractResultCard(props: ExtractResultCardProps) {
         >
           <ExternalLink className="h-3.5 w-3.5" />
           Visit URL
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-8 gap-1.5 px-3 text-xs"
+          onClick={handleSave}
+          disabled={saveToItems.isPending}
+        >
+          {saveToItems.isPending ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <Save className="h-3.5 w-3.5" />
+          )}
+          Save
         </Button>
       </div>
     </article>

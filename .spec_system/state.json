@@ -37,7 +37,8 @@
     "phase01-session04-extract-page",
     "phase01-session05-crawl-page",
     "phase01-session06-map-page-and-polish",
-    "phase02-session01-backend-model-and-migration"
+    "phase02-session01-backend-model-and-migration",
+    "phase02-session02-frontend-hooks-and-save-buttons"
   ],
   "next_session_history": [
     {
@@ -103,6 +104,11 @@
     {
       "date": "2025-12-22",
       "session": "phase02-session01-backend-model-and-migration",
+      "status": "completed"
+    },
+    {
+      "date": "2025-12-22",
+      "session": "phase02-session02-frontend-hooks-and-save-buttons",
       "status": "completed"
     }
   ]

@@ -1,12 +1,15 @@
-import { Check, Copy, ExternalLink, Link2 } from "lucide-react"
+import { Check, Copy, ExternalLink, Link2, Loader2, Save } from "lucide-react"
 import { toast } from "sonner"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { useCopyToClipboard } from "@/hooks/useCopyToClipboard"
+import { useSaveToItems } from "@/hooks/useSaveToItems"
+import { mapMapResultsToItem } from "@/lib/tavily-mappers"
 
 interface MapResultsListProps {
   urls: string[]
+  baseUrl: string
 }
 
 function extractPath(url: string): string {
@@ -18,8 +21,9 @@ function extractPath(url: string): string {
   }
 }
 
-export function MapResultsList({ urls }: MapResultsListProps) {
+export function MapResultsList({ urls, baseUrl }: MapResultsListProps) {
   const [copiedText, copy] = useCopyToClipboard()
+  const saveToItems = useSaveToItems()
 
   const handleCopyUrl = async (url: string) => {
     const success = await copy(url)
@@ -40,6 +44,11 @@ export function MapResultsList({ urls }: MapResultsListProps) {
     }
   }
 
+  const handleSaveAll = () => {
+    const item = mapMapResultsToItem(urls, baseUrl)
+    saveToItems.mutate(item)
+  }
+
   return (
     <div className="space-y-4">
       {/* Section header */}
@@ -53,15 +62,31 @@ export function MapResultsList({ urls }: MapResultsListProps) {
             {urls.length}
           </Badge>
         </div>
-        <Button
-          variant="secondary"
-          size="sm"
-          onClick={handleCopyAll}
-          className="h-8 gap-1.5 text-xs"
-        >
-          <Copy className="h-3.5 w-3.5" />
-          Copy All
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={handleCopyAll}
+            className="h-8 gap-1.5 text-xs"
+          >
+            <Copy className="h-3.5 w-3.5" />
+            Copy All
+          </Button>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={handleSaveAll}
+            disabled={saveToItems.isPending}
+            className="h-8 gap-1.5 text-xs"
+          >
+            {saveToItems.isPending ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Save className="h-3.5 w-3.5" />
+            )}
+            Save All
+          </Button>
+        </div>
       </div>
 
       {/* URL list */}

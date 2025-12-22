@@ -4,11 +4,13 @@ import { SearchResultCard } from "./SearchResultCard"
 
 interface SearchResultsListProps {
   results: SearchResult[]
+  query: string
   onResultClick?: (result: SearchResult) => void
 }
 
 export function SearchResultsList({
   results,
+  query,
   onResultClick,
 }: SearchResultsListProps) {
   if (results.length === 0) {
@@ -21,6 +23,7 @@ export function SearchResultsList({
         <SearchResultCard
           key={`${result.url}-${index}`}
           result={result}
+          query={query}
           onClick={() => onResultClick?.(result)}
         />
       ))}

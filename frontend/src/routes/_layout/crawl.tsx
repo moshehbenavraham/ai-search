@@ -104,7 +104,10 @@ function CrawlPage() {
             {results.length > 0 ? (
               <>
                 <div className="separator-elegant" />
-                <CrawlResultsList results={results} />
+                <CrawlResultsList
+                  results={results}
+                  baseUrl={crawlResult.base_url}
+                />
               </>
             ) : (
               <div className="rounded-xl border border-dashed border-border bg-surface-1 p-8 text-center">

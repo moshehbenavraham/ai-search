@@ -98,7 +98,7 @@ function MapPage() {
             {urls.length > 0 ? (
               <>
                 <div className="separator-elegant" />
-                <MapResultsList urls={urls} />
+                <MapResultsList urls={urls} baseUrl={mapResult.base_url} />
               </>
             ) : (
               <div className="rounded-xl border border-dashed border-border bg-surface-1 p-8 text-center">

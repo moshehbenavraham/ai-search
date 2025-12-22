@@ -122,6 +122,7 @@ function SearchPage() {
 
             <SearchResultsList
               results={searchResults.results ?? []}
+              query={searchResults.query}
               onResultClick={handleResultClick}
             />
           </CardContent>
@@ -138,6 +139,7 @@ function SearchPage() {
       {/* Detail dialog */}
       <SearchResultDetail
         result={selectedResult}
+        query={searchResults?.query ?? ""}
         open={detailOpen}
         onOpenChange={setDetailOpen}
       />
