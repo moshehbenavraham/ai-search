@@ -68,7 +68,7 @@ class ItemBase(SQLModel):
     # Tavily result fields - all optional for backward compatibility
     source_url: str | None = Field(default=None, max_length=2048)
     content: str | None = Field(default=None, sa_type=Text)
-    content_type: ContentType | None = Field(default=None, sa_type=String(50))
+    content_type: ContentType | None = Field(default=None, sa_type=String(50))  # type: ignore[call-overload]
     item_metadata: dict[str, Any] | None = Field(default=None, sa_type=JSON)
 
 

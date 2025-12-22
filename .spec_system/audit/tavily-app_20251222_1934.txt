@@ -1,0 +1,19 @@
+AUDIT REPORT | tavily-app | 2025-12-22 19:34
+Git: clean | Stack(s): TypeScript/React + Python/FastAPI
+
+[SETUP] npm + uv | Linter: ok | Fmt: ok | Types: ok
+  Frontend: Biome 2.3.8 (lint+fmt), TypeScript 5.9.3
+  Backend: Ruff (lint+fmt), mypy (types), pytest (tests)
+
+[frontend]
+  Fmt: 0 fixed | Lint: 0 fixed, 0 remain | Types: 0 errors
+  Build: SUCCESS (4.04s, 29 chunks)
+  Tests: N/A (no unit tests, Playwright e2e available)
+
+[backend]
+  Fmt: 0 fixed | Lint: 1 fixed, 0 remain | Types: 1 fixed, 0 remain
+    Fixed: Ruff auto-fix (1 issue)
+    Fixed: mypy call-overload in app/models.py:71 (type ignore added for SQLModel quirk)
+  Tests: 85/85 pass (4 integration tests deselected)
+
+SUMMARY: P1 ok | P2 2/2 fixed, 0 remain | P3 pass

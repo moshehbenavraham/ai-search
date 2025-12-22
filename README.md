@@ -88,12 +88,13 @@ Copy `.env.example` to `.env` and configure:
 
 ## Project Status
 
-| Phase | Name | Status |
-|-------|------|--------|
-| 00 | Core Setup | Complete |
-| 01 | Frontend Integration | Complete |
+| Phase | Name | Sessions | Status |
+|-------|------|----------|--------|
+| 00 | Core Setup | 6 | Complete |
+| 01 | Frontend Integration | 6 | Complete |
+| 02 | Saving Results to Items | 3 | Complete |
 
-All MVP features are implemented. See [PRD](.spec_system/PRD/PRD.md) for details.
+All 15 sessions across 3 phases are complete. See [PRD](.spec_system/PRD/PRD.md) for details.
 
 ## License
 

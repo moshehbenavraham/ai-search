@@ -1,0 +1,19 @@
+# CODEOWNERS
+# See: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owners for everything
+* @aiwithapex
+
+# Backend (FastAPI, Python)
+/backend/ @aiwithapex
+
+# Frontend (React, TypeScript)
+/frontend/ @aiwithapex
+
+# Infrastructure and deployment
+/docker-compose*.yml @aiwithapex
+/.github/ @aiwithapex
+
+# Documentation
+/docs/ @aiwithapex
+/.spec_system/ @aiwithapex
