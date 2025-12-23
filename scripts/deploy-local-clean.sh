@@ -8,6 +8,7 @@
 # Usage: ./scripts/deploy-local-clean.sh [OPTIONS]
 #
 # Options:
+#   --stop       Stop all services without rebuilding (preserves data)
 #   --nuclear    DANGER: Also removes volumes (destroys all database data)
 #   --skip-cache Skip cleaning build cache (faster but less thorough)
 #   --help       Show this help message
@@ -98,6 +99,22 @@ print_nuclear_warning() {
     ║   ✗ Volume: tavily-app_app-db-data will be REMOVED       ║
     ║                                                           ║
     ║              THIS CANNOT BE UNDONE!                       ║
+    ║                                                           ║
+    ╚═══════════════════════════════════════════════════════════╝
+EOF
+    echo -e "${NC}"
+}
+
+print_stop_mode() {
+    echo -e "${YELLOW}"
+    cat << 'EOF'
+    ╔═══════════════════════════════════════════════════════════╗
+    ║                                                           ║
+    ║   🛑  STOP MODE - Shutting down services  🛑              ║
+    ║                                                           ║
+    ║   ✓ All containers will be stopped                        ║
+    ║   ✓ All application data will remain                      ║
+    ║   ✓ Volume: tavily-app_app-db-data is protected           ║
     ║                                                           ║
     ╚═══════════════════════════════════════════════════════════╝
 EOF
@@ -214,12 +231,14 @@ show_help() {
     echo "Safe local rebuild script for Tavily App"
     echo ""
     echo "Options:"
+    echo "  --stop        Stop all services without rebuilding (preserves data)"
     echo "  --nuclear     DANGER: Also removes volumes (destroys all database data)"
     echo "  --skip-cache  Skip cleaning build cache (faster but less thorough)"
     echo "  --help        Show this help message"
     echo ""
     echo "Examples:"
     echo "  $0              # Safe rebuild, preserves database"
+    echo "  $0 --stop       # Stop services only, no rebuild"
     echo "  $0 --skip-cache # Quick rebuild without cache cleaning"
     echo "  $0 --nuclear    # Full reset including database (DESTRUCTIVE)"
     echo ""
@@ -231,9 +250,14 @@ show_help() {
 
 NUCLEAR_MODE=false
 SKIP_CACHE=false
+STOP_ONLY=false
 
 while [[ $# -gt 0 ]]; do
     case $1 in
+        --stop)
+            STOP_ONLY=true
+            shift
+            ;;
         --nuclear)
             NUCLEAR_MODE=true
             shift
@@ -272,7 +296,9 @@ clear
 print_banner
 
 # Show mode
-if [ "$NUCLEAR_MODE" = true ]; then
+if [ "$STOP_ONLY" = true ]; then
+    print_stop_mode
+elif [ "$NUCLEAR_MODE" = true ]; then
     print_nuclear_warning
     confirm_nuclear
 else
@@ -280,6 +306,24 @@ else
 fi
 
 sleep 1
+
+# Handle --stop mode: just stop services and exit
+if [ "$STOP_ONLY" = true ]; then
+    log_step 1 1 "Stopping all services"
+
+    docker compose down --remove-orphans 2>&1 | while read line; do
+        log_detail "$line"
+    done
+
+    log_success "All containers and networks stopped (volumes preserved)"
+
+    echo ""
+    echo -e "${GREEN}  🛑  All services have been stopped${NC}"
+    echo -e "${GRAY}  Run './scripts/deploy-local-clean.sh' to rebuild and start${NC}"
+    echo -e "${GRAY}  Run 'docker compose up -d' to start without rebuilding${NC}"
+    echo ""
+    exit 0
+fi
 
 # Track timing
 START_TIME=$(date +%s)
