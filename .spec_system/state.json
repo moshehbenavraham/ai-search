@@ -41,7 +41,19 @@
     "phase02-session02-frontend-hooks-and-save-buttons",
     "phase02-session03-items-page-enhancements"
   ],
+  "pending_phase": {
+    "phase": 3,
+    "name": "Deep Research Backend",
+    "status": "requires_scaffolding",
+    "recommended_date": "2025-12-26"
+  },
   "next_session_history": [
+    {
+      "date": "2025-12-26",
+      "session": "phase03-pending",
+      "status": "recommended",
+      "note": "Phase 03 requires /phasebuild to scaffold sessions"
+    },
     {
       "date": "2025-12-21",
       "session": "phase00-session01-dependency-and-configuration",

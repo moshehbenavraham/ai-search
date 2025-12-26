@@ -4,6 +4,10 @@ A comprehensive guide to using Coolify for self-hosted production deployments, b
 
 ---
 
+# .env file has Coolify API Key and Related Details
+
+---
+
 ## Table of Contents
 
 1. [What is Coolify?](#1-what-is-coolify)
