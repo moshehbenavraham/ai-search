@@ -12,6 +12,7 @@ from app.core import security
 from app.core.config import settings
 from app.core.db import engine
 from app.models import TokenPayload, User
+from app.services.perplexity import PerplexityService
 from app.services.tavily import TavilyService
 
 reusable_oauth2 = OAuth2PasswordBearer(
@@ -38,6 +39,18 @@ def get_tavily_service() -> TavilyService:
 
 
 TavilyDep = Annotated[TavilyService, Depends(get_tavily_service)]
+
+
+def get_perplexity_service() -> PerplexityService:
+    """Factory function for PerplexityService dependency injection.
+
+    Returns:
+        PerplexityService: A configured PerplexityService instance.
+    """
+    return PerplexityService()
+
+
+PerplexityDep = Annotated[PerplexityService, Depends(get_perplexity_service)]
 
 
 def get_current_user(session: SessionDep, token: TokenDep) -> User:

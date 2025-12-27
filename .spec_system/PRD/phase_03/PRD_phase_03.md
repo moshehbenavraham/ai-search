@@ -4,7 +4,7 @@
 **Sessions**: 6 (initial estimate)
 **Estimated Duration**: 2-3 days
 
-**Progress**: 3/6 sessions (50%)
+**Progress**: 4/6 sessions (67%)
 
 ---
 
@@ -21,7 +21,7 @@ Phase 03 implements the backend infrastructure for two deep research APIs: Perpl
 | 01 | Configuration and Environment | Complete | 20 | 2025-12-27 |
 | 02 | Perplexity Schemas and Exceptions | Complete | 22 | 2025-12-27 |
 | 03 | Gemini Schemas and Exceptions | Complete | 22 | 2025-12-27 |
-| 04 | Perplexity Service and Route | Not Started | ~25 | - |
+| 04 | Perplexity Service and Route | Complete | 22 | 2025-12-27 |
 | 05 | Gemini Service Implementation | Not Started | ~20 | - |
 | 06 | Gemini Routes and Integration | Not Started | ~25 | - |
 
@@ -49,11 +49,20 @@ Phase 03 implements the backend infrastructure for two deep research APIs: Perpl
 - Implemented GeminiAPIError exception with 9 factory methods and GeminiErrorCode enum
 - Updated schemas and exceptions __init__.py with proper exports
 
+### Session 04: Perplexity Service and Route (2025-12-27)
+- Implemented PerplexityService class with async deep_research() method
+- Created _build_headers(), _build_payload(), _parse_response(), _handle_error() methods
+- Used httpx AsyncClient with 300-second timeout for deep research queries
+- Added POST /api/v1/perplexity/deep-research route with JWT authentication
+- Added get_perplexity_service() factory and PerplexityDep to deps.py
+- Registered perplexity_exception_handler in main.py
+- All 22 tasks completed, ruff and mypy verified
+
 ---
 
 ## Upcoming Sessions
 
-- Session 04: Perplexity Service and Route
+- Session 05: Gemini Service Implementation
 
 ---
 
