@@ -4,6 +4,23 @@ This package contains all Pydantic v2 schemas used by the FastAPI application
 for request validation, response serialization, and OpenAPI documentation.
 """
 
+from app.schemas.perplexity import (
+    # Nested Result Models
+    PerplexityChoice,
+    # Request Schemas
+    PerplexityDeepResearchRequest,
+    # Response Schemas
+    PerplexityDeepResearchResponse,
+    PerplexityMessage,
+    # Enums
+    PerplexityReasoningEffort,
+    PerplexityRecencyFilter,
+    PerplexitySearchContextSize,
+    PerplexitySearchMode,
+    PerplexitySearchResult,
+    PerplexityUsage,
+    PerplexityVideo,
+)
 from app.schemas.tavily import (
     # Request Schemas
     CrawlRequest,
@@ -26,22 +43,37 @@ from app.schemas.tavily import (
 )
 
 __all__ = [
-    # Enums
+    # Tavily Enums
     "SearchDepth",
     "SearchTopic",
-    # Nested Result Models
+    # Tavily Nested Result Models
     "SearchResult",
     "SearchImage",
     "ExtractResult",
     "CrawlResult",
-    # Request Schemas
+    # Tavily Request Schemas
     "SearchRequest",
     "ExtractRequest",
     "CrawlRequest",
     "MapRequest",
-    # Response Schemas
+    # Tavily Response Schemas
     "SearchResponse",
     "ExtractResponse",
     "CrawlResponse",
     "MapResponse",
+    # Perplexity Enums
+    "PerplexitySearchMode",
+    "PerplexityReasoningEffort",
+    "PerplexitySearchContextSize",
+    "PerplexityRecencyFilter",
+    # Perplexity Nested Result Models
+    "PerplexitySearchResult",
+    "PerplexityVideo",
+    "PerplexityUsage",
+    "PerplexityMessage",
+    "PerplexityChoice",
+    # Perplexity Request Schemas
+    "PerplexityDeepResearchRequest",
+    # Perplexity Response Schemas
+    "PerplexityDeepResearchResponse",
 ]

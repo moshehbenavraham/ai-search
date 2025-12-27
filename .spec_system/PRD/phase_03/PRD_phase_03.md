@@ -4,7 +4,7 @@
 **Sessions**: 6 (initial estimate)
 **Estimated Duration**: 2-3 days
 
-**Progress**: 1/6 sessions (17%)
+**Progress**: 2/6 sessions (33%)
 
 ---
 
@@ -19,7 +19,7 @@ Phase 03 implements the backend infrastructure for two deep research APIs: Perpl
 | Session | Name | Status | Est. Tasks | Validated |
 |---------|------|--------|------------|-----------|
 | 01 | Configuration and Environment | Complete | 20 | 2025-12-27 |
-| 02 | Perplexity Schemas and Exceptions | Not Started | ~25 | - |
+| 02 | Perplexity Schemas and Exceptions | Complete | 22 | 2025-12-27 |
 | 03 | Gemini Schemas and Exceptions | Not Started | ~25 | - |
 | 04 | Perplexity Service and Route | Not Started | ~25 | - |
 | 05 | Gemini Service Implementation | Not Started | ~20 | - |
@@ -35,11 +35,18 @@ Phase 03 implements the backend infrastructure for two deep research APIs: Perpl
 - Created http_utils.py with reusable timeout and header utilities
 - Updated .env.example with all PERPLEXITY_* and GEMINI_* variables
 
+### Session 02: Perplexity Schemas and Exceptions (2025-12-27)
+- Created 4 enums: PerplexitySearchMode, PerplexityReasoningEffort, PerplexitySearchContextSize, PerplexityRecencyFilter
+- Implemented PerplexityDeepResearchRequest schema with 19 parameters and validators
+- Created response schemas: PerplexitySearchResult, PerplexityVideo, PerplexityUsage, PerplexityChoice, PerplexityMessage
+- Implemented PerplexityAPIError exception with 6 factory methods and PerplexityErrorCode enum
+- Updated schemas and exceptions __init__.py with proper exports
+
 ---
 
 ## Upcoming Sessions
 
-- Session 02: Perplexity Schemas and Exceptions
+- Session 03: Gemini Schemas and Exceptions
 
 ---
 
