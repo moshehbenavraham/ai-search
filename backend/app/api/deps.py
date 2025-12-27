@@ -12,6 +12,7 @@ from app.core import security
 from app.core.config import settings
 from app.core.db import engine
 from app.models import TokenPayload, User
+from app.services.gemini import GeminiService
 from app.services.perplexity import PerplexityService
 from app.services.tavily import TavilyService
 
@@ -51,6 +52,18 @@ def get_perplexity_service() -> PerplexityService:
 
 
 PerplexityDep = Annotated[PerplexityService, Depends(get_perplexity_service)]
+
+
+def get_gemini_service() -> GeminiService:
+    """Factory function for GeminiService dependency injection.
+
+    Returns:
+        GeminiService: A configured GeminiService instance.
+    """
+    return GeminiService()
+
+
+GeminiDep = Annotated[GeminiService, Depends(get_gemini_service)]
 
 
 def get_current_user(session: SessionDep, token: TokenDep) -> User:
