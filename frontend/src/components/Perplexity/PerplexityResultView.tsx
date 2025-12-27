@@ -1,23 +1,38 @@
+import { Loader2, Save } from "lucide-react"
 import Markdown from "react-markdown"
 
 import type { PerplexityDeepResearchResponse } from "@/client/types.gen"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
+import { useSaveToItems } from "@/hooks/useSaveToItems"
+import { mapPerplexityResultToItem } from "@/lib/deep-research-mappers"
 
 import { PerplexityCitationsList } from "./PerplexityCitationsList"
 import { PerplexityUsageStats } from "./PerplexityUsageStats"
 
 interface PerplexityResultViewProps {
   response: PerplexityDeepResearchResponse
+  query: string
 }
 
-export function PerplexityResultView({ response }: PerplexityResultViewProps) {
+export function PerplexityResultView({
+  response,
+  query,
+}: PerplexityResultViewProps) {
+  const saveToItems = useSaveToItems()
+
   // Extract content from the first choice
   const content = response.choices?.[0]?.message?.content ?? ""
   const model = response.model
   const citations = response.citations
   const searchResults = response.search_results
   const usage = response.usage
+
+  const handleSave = () => {
+    const itemCreate = mapPerplexityResultToItem(response, query)
+    saveToItems.mutate(itemCreate)
+  }
 
   if (!content) {
     return (
@@ -39,9 +54,25 @@ export function PerplexityResultView({ response }: PerplexityResultViewProps) {
               <span className="h-2 w-2 rounded-full bg-green-500" />
               Research Results
             </CardTitle>
-            <span className="text-xs text-muted-foreground">
-              Model: {model}
-            </span>
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-muted-foreground">
+                Model: {model}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleSave}
+                disabled={saveToItems.isPending}
+                aria-label="Save research to Items"
+              >
+                {saveToItems.isPending ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Save className="mr-2 h-4 w-4" />
+                )}
+                Save
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>

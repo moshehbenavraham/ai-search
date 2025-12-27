@@ -639,7 +639,7 @@ export const ItemCreateSchema = {
             anyOf: [
                 {
                     type: 'string',
-                    enum: ['search', 'extract', 'crawl', 'map']
+                    enum: ['search', 'extract', 'crawl', 'map', 'perplexity', 'gemini']
                 },
                 {
                     type: 'null'
@@ -712,7 +712,7 @@ export const ItemPublicSchema = {
             anyOf: [
                 {
                     type: 'string',
-                    enum: ['search', 'extract', 'crawl', 'map']
+                    enum: ['search', 'extract', 'crawl', 'map', 'perplexity', 'gemini']
                 },
                 {
                     type: 'null'
@@ -802,7 +802,7 @@ export const ItemUpdateSchema = {
             anyOf: [
                 {
                     type: 'string',
-                    enum: ['search', 'extract', 'crawl', 'map']
+                    enum: ['search', 'extract', 'crawl', 'map', 'perplexity', 'gemini']
                 },
                 {
                     type: 'null'

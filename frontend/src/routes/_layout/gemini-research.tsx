@@ -40,6 +40,9 @@ function GeminiResearchPage() {
   const [interactionId, setInteractionId] = useState<string | null>(null)
   const [lastEventId, setLastEventId] = useState<string | null>(null)
 
+  // Query tracking for save functionality
+  const [lastQuery, setLastQuery] = useState("")
+
   // Result state
   const [result, setResult] = useState<GeminiDeepResearchResultResponse | null>(
     null,
@@ -138,6 +141,7 @@ function GeminiResearchPage() {
     setLastEventId(null)
     setElapsedSeconds(0)
     setCurrentStatus("pending")
+    setLastQuery(data.query)
 
     // Start research
     startMutation.mutate(data)
@@ -234,9 +238,13 @@ function GeminiResearchPage() {
       )}
 
       {/* Results */}
-      {pageState === "completed" && result && (
+      {pageState === "completed" && result && interactionId && (
         <div className="page-enter-child">
-          <GeminiResultView response={result} />
+          <GeminiResultView
+            response={result}
+            query={lastQuery}
+            interactionId={interactionId}
+          />
         </div>
       )}
 

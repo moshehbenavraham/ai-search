@@ -1,4 +1,4 @@
-import { ChevronDown, Lightbulb } from "lucide-react"
+import { ChevronDown, Lightbulb, Loader2, Save } from "lucide-react"
 import { useState } from "react"
 import Markdown from "react-markdown"
 
@@ -6,6 +6,7 @@ import type {
   GeminiDeepResearchResultResponse,
   GeminiOutput,
 } from "@/client/types.gen"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Collapsible,
@@ -13,11 +14,15 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
 import { Separator } from "@/components/ui/separator"
+import { useSaveToItems } from "@/hooks/useSaveToItems"
+import { mapGeminiResultToItem } from "@/lib/deep-research-mappers"
 
 import { GeminiUsageStats } from "./GeminiUsageStats"
 
 interface GeminiResultViewProps {
   response: GeminiDeepResearchResultResponse
+  query: string
+  interactionId: string
 }
 
 // Extract main content from outputs
@@ -45,12 +50,25 @@ function extractThinkingSummaries(
     .map((output) => output.thinking_summary as string)
 }
 
-export function GeminiResultView({ response }: GeminiResultViewProps) {
+export function GeminiResultView({
+  response,
+  query,
+  interactionId,
+}: GeminiResultViewProps) {
   const [thinkingOpen, setThinkingOpen] = useState(false)
+  const saveToItems = useSaveToItems()
 
   const content = extractContent(response.outputs)
   const thinkingSummaries = extractThinkingSummaries(response.outputs)
   const usage = response.usage
+
+  const handleSave = () => {
+    const itemCreate = mapGeminiResultToItem(response, query, interactionId)
+    saveToItems.mutate(itemCreate)
+  }
+
+  // Only enable save when research is completed
+  const canSave = response.status === "completed"
 
   if (!content) {
     return (
@@ -72,9 +90,25 @@ export function GeminiResultView({ response }: GeminiResultViewProps) {
               <span className="h-2 w-2 rounded-full bg-green-500" />
               Research Results
             </CardTitle>
-            <span className="text-xs text-muted-foreground">
-              Status: {response.status}
-            </span>
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-muted-foreground">
+                Status: {response.status}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleSave}
+                disabled={!canSave || saveToItems.isPending}
+                aria-label="Save research to Items"
+              >
+                {saveToItems.isPending ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Save className="mr-2 h-4 w-4" />
+                )}
+                Save
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>

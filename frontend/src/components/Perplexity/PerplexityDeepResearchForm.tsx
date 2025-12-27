@@ -43,11 +43,13 @@ import {
 
 interface PerplexityDeepResearchFormProps {
   onResearchComplete?: (data: unknown) => void
+  onQuerySubmit?: (query: string) => void
   isLoading?: boolean
 }
 
 export function PerplexityDeepResearchForm({
   onResearchComplete,
+  onQuerySubmit,
   isLoading: externalLoading,
 }: PerplexityDeepResearchFormProps) {
   const [advancedOpen, setAdvancedOpen] = useState(false)
@@ -70,6 +72,9 @@ export function PerplexityDeepResearchForm({
   const showReasoningEffort = selectedModel === "sonar-reasoning"
 
   const onSubmit = (data: PerplexityFormData) => {
+    // Notify parent of query submission
+    onQuerySubmit?.(data.query)
+
     // Build request matching PerplexityDeepResearchRequest type
     const request: PerplexityDeepResearchRequest = {
       query: data.query,

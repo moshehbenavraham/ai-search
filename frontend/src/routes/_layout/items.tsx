@@ -16,7 +16,7 @@ import PendingItems from "@/components/Pending/PendingItems"
 
 const itemsSearchSchema = z.object({
   type: z
-    .enum(["all", "search", "extract", "crawl", "map"])
+    .enum(["all", "search", "extract", "crawl", "map", "perplexity", "gemini"])
     .optional()
     .default("all"),
 })

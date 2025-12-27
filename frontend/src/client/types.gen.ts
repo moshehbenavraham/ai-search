@@ -326,7 +326,7 @@ export type ItemCreate = {
     description?: (string | null);
     source_url?: (string | null);
     content?: (string | null);
-    content_type?: ('search' | 'extract' | 'crawl' | 'map' | null);
+    content_type?: ('search' | 'extract' | 'crawl' | 'map' | 'perplexity' | 'gemini' | null);
     item_metadata?: ({
     [key: string]: unknown;
 } | null);
@@ -337,7 +337,7 @@ export type ItemPublic = {
     description?: (string | null);
     source_url?: (string | null);
     content?: (string | null);
-    content_type?: ('search' | 'extract' | 'crawl' | 'map' | null);
+    content_type?: ('search' | 'extract' | 'crawl' | 'map' | 'perplexity' | 'gemini' | null);
     item_metadata?: ({
     [key: string]: unknown;
 } | null);
@@ -355,7 +355,7 @@ export type ItemUpdate = {
     description?: (string | null);
     source_url?: (string | null);
     content?: (string | null);
-    content_type?: ('search' | 'extract' | 'crawl' | 'map' | null);
+    content_type?: ('search' | 'extract' | 'crawl' | 'map' | 'perplexity' | 'gemini' | null);
     item_metadata?: ({
     [key: string]: unknown;
 } | null);
@@ -963,7 +963,7 @@ export type GeminiCancelDeepResearchResponse = ({
 });
 
 export type ItemsReadItemsData = {
-    contentType?: ('search' | 'extract' | 'crawl' | 'map' | null);
+    contentType?: ('search' | 'extract' | 'crawl' | 'map' | 'perplexity' | 'gemini' | null);
     limit?: number;
     skip?: number;
 };

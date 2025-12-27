@@ -1,7 +1,15 @@
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 
-type ContentType = "search" | "extract" | "crawl" | "map" | null | undefined
+type ContentType =
+  | "search"
+  | "extract"
+  | "crawl"
+  | "map"
+  | "perplexity"
+  | "gemini"
+  | null
+  | undefined
 
 interface ContentTypeBadgeProps {
   contentType: ContentType
@@ -30,6 +38,16 @@ const CONTENT_TYPE_CONFIG: Record<
     label: "Map",
     className:
       "bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-800",
+  },
+  perplexity: {
+    label: "Perplexity",
+    className:
+      "bg-cyan-100 text-cyan-800 border-cyan-200 dark:bg-cyan-900/30 dark:text-cyan-300 dark:border-cyan-800",
+  },
+  gemini: {
+    label: "Gemini",
+    className:
+      "bg-indigo-100 text-indigo-800 border-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-300 dark:border-indigo-800",
   },
 }
 

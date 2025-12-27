@@ -21,6 +21,7 @@ function PerplexityResearchPage() {
   const [result, setResult] = useState<PerplexityDeepResearchResponse | null>(
     null,
   )
+  const [lastQuery, setLastQuery] = useState("")
   const [elapsedSeconds, setElapsedSeconds] = useState(0)
 
   const mutation = usePerplexityDeepResearch({
@@ -77,6 +78,7 @@ function PerplexityResearchPage() {
         <CardContent className="pt-6">
           <PerplexityDeepResearchForm
             onResearchComplete={handleResearchComplete}
+            onQuerySubmit={setLastQuery}
             isLoading={mutation.isPending}
           />
         </CardContent>
@@ -107,7 +109,7 @@ function PerplexityResearchPage() {
       {/* Results */}
       {result && !mutation.isPending && (
         <div className="page-enter-child">
-          <PerplexityResultView response={result} />
+          <PerplexityResultView response={result} query={lastQuery} />
         </div>
       )}
 

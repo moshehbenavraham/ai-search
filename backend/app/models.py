@@ -5,8 +5,8 @@ from pydantic import EmailStr
 from sqlalchemy import JSON, String, Text
 from sqlmodel import Field, Relationship, SQLModel
 
-# Content type for Tavily results - validated at Pydantic level, stored as string in DB
-ContentType = Literal["search", "extract", "crawl", "map"]
+# Content type for Tavily results and deep research - validated at Pydantic level, stored as string in DB
+ContentType = Literal["search", "extract", "crawl", "map", "perplexity", "gemini"]
 
 
 # Shared properties
