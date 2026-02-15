@@ -6,7 +6,7 @@ services:
   # etc. To enable it, update .env, set:
   # DOMAIN=localhost.tiangolo.com
   proxy:
-    image: traefik:3.3
+    image: traefik:3.6
     # Note: Docker provider disabled for local dev due to API version incompatibility
     # Services are accessed directly via their exposed ports (backend:8009, frontend:5179, etc.)
     volumes:
