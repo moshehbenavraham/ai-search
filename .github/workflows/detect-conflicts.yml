@@ -1,6 +1,7 @@
 name: "Conflict detector"
 on:
   push:
+    branches: [main, master, develop]
   pull_request_target:
     types: [synchronize]
 
