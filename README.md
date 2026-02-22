@@ -11,6 +11,13 @@ docker compose up -d
 
 Access the app at http://localhost:5179
 
+## Local 'Production' Emulation
+
+```bash
+# Use bash script for full assembly
+./scripts/deploy-local.sh
+```
+
 ## Repository Structure
 
 ```
