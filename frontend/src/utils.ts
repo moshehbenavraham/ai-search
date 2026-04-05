@@ -3,14 +3,14 @@ import type { ApiError } from "./client"
 
 function extractErrorMessage(err: ApiError): string {
   if (err instanceof AxiosError) {
-    return err.message
+    const errDetail = (err.response?.data as any)?.detail
+    if (Array.isArray(errDetail) && errDetail.length > 0) {
+      return errDetail[0].msg
+    }
+    return errDetail || err.message
   }
 
-  const errDetail = (err.body as any)?.detail
-  if (Array.isArray(errDetail) && errDetail.length > 0) {
-    return errDetail[0].msg
-  }
-  return errDetail || "Something went wrong."
+  return "Something went wrong."
 }
 
 export const handleError = function (

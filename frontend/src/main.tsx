@@ -20,10 +20,11 @@ OpenAPI.TOKEN = async () => {
 
 const handleApiError = (error: Error) => {
   if (error instanceof ApiError) {
+    const status = error.status ?? error.response?.status
+    const requestUrl = error.config?.url ?? ""
     // Handle auth errors (401, 403) and user not found from /users/me (stale token)
-    const isAuthError = [401, 403].includes(error.status)
-    const isUserNotFound =
-      error.status === 404 && error.url.includes("/users/me")
+    const isAuthError = status !== undefined && [401, 403].includes(status)
+    const isUserNotFound = status === 404 && requestUrl.includes("/users/me")
     if (isAuthError || isUserNotFound) {
       localStorage.removeItem("access_token")
       window.location.href = "/login"
