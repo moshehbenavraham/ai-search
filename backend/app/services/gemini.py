@@ -18,6 +18,7 @@ Usage:
 """
 
 import asyncio
+import json
 from typing import Any
 
 import httpx
@@ -112,6 +113,20 @@ class GeminiService:
         if response_body:
             details = {"response_body": response_body}
 
+        parsed_error = self._extract_error_details(response_body)
+
+        if status_code == 400 and parsed_error and (
+            parsed_error.get("reason") == "API_KEY_INVALID"
+            or parsed_error.get("status") == "API_KEY_INVALID"
+            or "api key expired" in parsed_error.get("message", "").lower()
+            or "api key invalid" in parsed_error.get("message", "").lower()
+        ):
+            return GeminiAPIError.invalid_api_key(
+                message=parsed_error.get("message")
+                or "Invalid or expired Gemini API key.",
+                details=details,
+            )
+
         if status_code == 401:
             return GeminiAPIError.invalid_api_key(details=details)
         elif status_code == 404:
@@ -129,6 +144,43 @@ class GeminiService:
                 details=details,
             )
 
+    def _extract_error_details(
+        self,
+        response_body: str | None,
+    ) -> dict[str, str] | None:
+        """Extract a normalized error shape from Gemini error responses."""
+        if not response_body:
+            return None
+
+        try:
+            payload = json.loads(response_body)
+        except json.JSONDecodeError:
+            return None
+
+        if isinstance(payload, list) and payload:
+            payload = payload[0]
+
+        if not isinstance(payload, dict):
+            return None
+
+        error = payload.get("error")
+        if not isinstance(error, dict):
+            return None
+
+        reason = None
+        details = error.get("details")
+        if isinstance(details, list):
+            for item in details:
+                if isinstance(item, dict) and item.get("reason"):
+                    reason = item["reason"]
+                    break
+
+        return {
+            "message": str(error.get("message", "")),
+            "status": str(error.get("status", "")),
+            "reason": str(reason or ""),
+        }
+
     def _build_payload(
         self,
         request: GeminiDeepResearchRequest,
@@ -136,10 +188,8 @@ class GeminiService:
         """Build API request payload from request schema.
 
         Constructs the payload structure required by Gemini Interactions API.
-        Uses the correct field names: 'input' for query and 'agent' for agent name.
-
-        Note: enable_thinking_summaries is stored for future API compatibility
-        but is not currently sent to the Gemini API as it's not yet supported.
+        Deep research runs as a stored background interaction with explicit
+        agent configuration and optional file search tools.
 
         Args:
             request: The deep research request with query and parameters.
@@ -151,14 +201,22 @@ class GeminiService:
             "input": request.query,
             "agent": "deep-research-pro-preview-12-2025",
             "background": True,
+            "store": True,
+            "agent_config": {
+                "type": "deep-research",
+                "thinking_summaries": (
+                    "auto" if request.enable_thinking_summaries else "none"
+                ),
+            },
         }
 
-        # Note: enable_thinking_summaries is not currently supported by the Gemini API.
-        # The field is retained in the schema for future compatibility when Google
-        # adds support for this feature.
-
         if request.file_search_store_names:
-            payload["file_search_store_names"] = request.file_search_store_names
+            payload["tools"] = [
+                {
+                    "type": "file_search",
+                    "file_search_store_names": request.file_search_store_names,
+                }
+            ]
 
         if request.previous_interaction_id:
             payload["previous_interaction_id"] = request.previous_interaction_id
@@ -210,17 +268,14 @@ class GeminiService:
             GeminiAPIError: If response format is unexpected.
         """
         try:
-            # DEBUG: Log raw response to understand structure
-            import json
-            print(f"DEBUG Gemini raw response: {json.dumps(response_data, indent=2, default=str)}")
             return GeminiDeepResearchResultResponse.model_validate(response_data)
         except Exception as exc:
-            # DEBUG: Log the validation error details
-            print(f"DEBUG Gemini parse error: {exc}")
-            print(f"DEBUG Response keys: {response_data.keys() if response_data else 'None'}")
             raise GeminiAPIError.api_error(
                 message="Failed to parse Gemini poll response.",
-                details={"original_error": str(exc), "response_keys": list(response_data.keys()) if response_data else []},
+                details={
+                    "original_error": str(exc),
+                    "response_keys": list(response_data.keys()) if response_data else [],
+                },
             ) from exc
 
     def _is_terminal_status(self, status: GeminiInteractionStatus) -> bool:
@@ -445,7 +500,7 @@ class GeminiService:
     ) -> None:
         """Cancel a running deep research job.
 
-        Makes a DELETE request to terminate a running research job.
+        Makes a cancel request to terminate a running research job.
         Returns successfully if the job was cancelled or was already
         in a terminal state.
 
@@ -456,19 +511,18 @@ class GeminiService:
             GeminiAPIError: If the cancellation request fails.
         """
         headers = self._build_headers()
-        url = f"{self.BASE_URL}/interactions/{interaction_id}"
+        url = f"{self.BASE_URL}/interactions/{interaction_id}/cancel"
 
         try:
             async with httpx.AsyncClient(
                 timeout=httpx.Timeout(self._timeout)
             ) as client:
-                response = await client.delete(
+                response = await client.post(
                     url,
                     headers=headers,
                 )
 
-                # 204 No Content is expected on success
-                if response.status_code not in (200, 204):
+                if response.status_code != 200:
                     raise self._handle_error(
                         status_code=response.status_code,
                         response_body=response.text,
