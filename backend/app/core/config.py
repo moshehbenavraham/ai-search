@@ -59,6 +59,20 @@ class GeminiAgent(StrEnum):
 
 
 # =============================================================================
+# You.com API Enums
+# =============================================================================
+
+
+class YouComResearchEffort(StrEnum):
+    """Research effort tiers for You.com research queries."""
+
+    LITE = "lite"
+    STANDARD = "standard"
+    DEEP = "deep"
+    EXHAUSTIVE = "exhaustive"
+
+
+# =============================================================================
 # Settings Classes
 # =============================================================================
 
@@ -193,6 +207,36 @@ class GeminiSettings(BaseSettings):
     )
 
 
+class YouComSettings(BaseSettings):
+    """Configuration for You.com Research API integration.
+
+    Environment variables:
+        YOUCOM_API_KEY: API key from You.com (optional)
+        YOUCOM_TIMEOUT: Request timeout in seconds (default: 300)
+        YOUCOM_DEFAULT_RESEARCH_EFFORT: Default research effort (default: standard)
+    """
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_ignore_empty=True,
+        extra="ignore",
+        env_prefix="YOUCOM_",
+    )
+
+    api_key: str | None = Field(
+        default=None,
+        description="You.com API key for authentication",
+    )
+    timeout: int = Field(
+        default=300,
+        description="Request timeout in seconds",
+    )
+    default_research_effort: YouComResearchEffort = Field(
+        default=YouComResearchEffort.STANDARD,
+        description="Default You.com research effort",
+    )
+
+
 def parse_cors(v: Any) -> list[str] | str:
     if isinstance(v, str) and not v.startswith("["):
         return [i.strip() for i in v.split(",") if i.strip()]
@@ -303,6 +347,9 @@ class Settings(BaseSettings):
 
     # Gemini API settings (nested model)
     gemini: GeminiSettings = Field(default_factory=lambda: GeminiSettings())
+
+    # You.com API settings (nested model)
+    youcom: YouComSettings = Field(default_factory=lambda: YouComSettings())
 
 
 settings = Settings()  # type: ignore

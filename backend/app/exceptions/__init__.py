@@ -6,6 +6,7 @@ errors from external API integrations in a structured way.
 
 from app.exceptions.gemini import GeminiAPIError, GeminiErrorCode
 from app.exceptions.perplexity import PerplexityAPIError, PerplexityErrorCode
+from app.exceptions.youcom import YouComAPIError, YouComErrorCode
 
 __all__ = [
     # Perplexity
@@ -14,4 +15,7 @@ __all__ = [
     # Gemini
     "GeminiAPIError",
     "GeminiErrorCode",
+    # You.com
+    "YouComAPIError",
+    "YouComErrorCode",
 ]

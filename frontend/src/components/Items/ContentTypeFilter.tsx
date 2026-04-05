@@ -14,6 +14,7 @@ export type ContentTypeFilterValue =
   | "map"
   | "perplexity"
   | "gemini"
+  | "youcom"
 
 interface ContentTypeFilterProps {
   value: ContentTypeFilterValue
@@ -28,6 +29,7 @@ const FILTER_OPTIONS: { value: ContentTypeFilterValue; label: string }[] = [
   { value: "map", label: "Map" },
   { value: "perplexity", label: "Perplexity" },
   { value: "gemini", label: "Gemini" },
+  { value: "youcom", label: "You.com" },
 ]
 
 export function ContentTypeFilter({ value, onChange }: ContentTypeFilterProps) {

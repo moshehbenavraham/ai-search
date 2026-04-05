@@ -56,6 +56,13 @@ from app.schemas.tavily import (
     SearchResult,
     SearchTopic,
 )
+from app.schemas.youcom import (
+    YouComDeepResearchRequest,
+    YouComDeepResearchResponse,
+    YouComOutput,
+    YouComResearchEffort,
+    YouComSource,
+)
 
 __all__ = [
     # Tavily Enums
@@ -104,4 +111,13 @@ __all__ = [
     # Gemini Response Schemas
     "GeminiDeepResearchJobResponse",
     "GeminiDeepResearchResultResponse",
+    # You.com Enums
+    "YouComResearchEffort",
+    # You.com Nested Models
+    "YouComSource",
+    "YouComOutput",
+    # You.com Request Schemas
+    "YouComDeepResearchRequest",
+    # You.com Response Schemas
+    "YouComDeepResearchResponse",
 ]

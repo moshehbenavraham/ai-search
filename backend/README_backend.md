@@ -2,9 +2,10 @@
 
 ## API Integrations
 
-The backend integrates three AI-powered research APIs:
+The backend integrates four AI-powered research APIs:
 - **Tavily** - Web search via official `tavily-python` SDK
 - **Perplexity Sonar** - Synchronous deep research via HTTP
+- **You.com Research** - Synchronous deep research via HTTP
 - **Google Gemini** - Asynchronous deep research with polling
 
 ### API Endpoints
@@ -26,6 +27,12 @@ All endpoints require JWT authentication.
 |----------|--------|-------------|
 | `/api/v1/perplexity/deep-research` | POST | AI research with citations |
 
+#### You.com Research (Deep Research)
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/v1/youcom/deep-research` | POST | Synchronous markdown research with sources |
+
 #### Gemini (Deep Research)
 
 | Endpoint | Method | Description |
@@ -41,12 +48,15 @@ All endpoints require JWT authentication.
 |------|---------|
 | `app/services/tavily.py` | TavilyService - SDK wrapper |
 | `app/services/perplexity.py` | PerplexityService - HTTP client |
+| `app/services/youcom.py` | YouComService - HTTP client |
 | `app/services/gemini.py` | GeminiService - Async polling |
 | `app/schemas/tavily.py` | Tavily request/response models |
 | `app/schemas/perplexity.py` | Perplexity request/response models |
+| `app/schemas/youcom.py` | You.com request/response models |
 | `app/schemas/gemini.py` | Gemini job/result models |
 | `app/api/routes/tavily.py` | Tavily endpoints |
 | `app/api/routes/perplexity.py` | Perplexity endpoints |
+| `app/api/routes/youcom.py` | You.com endpoints |
 | `app/api/routes/gemini.py` | Gemini endpoints |
 | `app/core/exceptions.py` | API-specific exceptions |
 | `app/api/deps.py` | Dependency injection |
@@ -59,6 +69,9 @@ bash scripts/test.sh
 
 # Tavily tests only
 uv run pytest tests/api/routes/test_tavily.py -v
+
+# You.com tests only
+uv run python -m pytest tests/services/test_youcom.py tests/api/routes/test_youcom.py -v
 ```
 
 ## Requirements

@@ -161,7 +161,7 @@ The AI Search app consists of the following services:
 
 | Service      | Image                    | Port(s)              | Purpose                    |
 |--------------|--------------------------|----------------------|----------------------------|
-| db           | postgres:17              | 5441:5432            | PostgreSQL database        |
+| db           | postgres:17              | 5439:5432            | PostgreSQL database        |
 | backend      | ai-search-backend:latest    | 8009:8000            | FastAPI backend            |
 | frontend     | ai-search-frontend:latest   | 5179:80              | Nginx serving React app    |
 | proxy        | traefik:3.3              | 80, 8090:8080        | Reverse proxy (disabled)   |

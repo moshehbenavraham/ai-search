@@ -9,6 +9,7 @@ from app.core.config import settings
 from app.core.exceptions import TavilyAPIError
 from app.exceptions.gemini import GeminiAPIError
 from app.exceptions.perplexity import PerplexityAPIError
+from app.exceptions.youcom import YouComAPIError
 from app.schemas.tavily import ErrorResponse
 
 
@@ -107,6 +108,23 @@ async def gemini_exception_handler(
     Returns:
         JSONResponse with ErrorResponse body and appropriate status code.
     """
+    return JSONResponse(
+        status_code=exc.status_code,
+        content=ErrorResponse(
+            error_code=exc.error_code,
+            message=exc.message,
+            details=exc.details,
+        ).model_dump(),
+    )
+
+
+@app.exception_handler(YouComAPIError)
+async def youcom_exception_handler(
+    _request: Request,
+    exc: YouComAPIError,
+) -> JSONResponse:
+    """Handle YouComAPIError exceptions."""
+
     return JSONResponse(
         status_code=exc.status_code,
         content=ErrorResponse(

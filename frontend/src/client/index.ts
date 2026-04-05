@@ -16,6 +16,7 @@ import {
   loginResetPassword,
   loginTestToken,
   perplexityDeepResearch,
+  youcomDeepResearch,
   privateCreateUser,
   tavilyCrawl,
   tavilyExtract,
@@ -53,6 +54,8 @@ import type {
   LoginResetPasswordResponse,
   LoginTestTokenResponse,
   PerplexityDeepResearchResponse2,
+  YouComDeepResearchRequest,
+  YouComDeepResearchResponse,
   PrivateUserCreate,
   PrivateCreateUserResponse,
   CrawlRequest,
@@ -403,6 +406,17 @@ export class PerplexityService {
   public static deepResearch(data: RequestBodyData<PerplexityDeepResearchRequest>) {
     return unwrap<PerplexityDeepResearchResponse2>(
       perplexityDeepResearch({
+        body: data.requestBody,
+        throwOnError: true,
+      }),
+    )
+  }
+}
+
+export class YouComService {
+  public static deepResearch(data: RequestBodyData<YouComDeepResearchRequest>) {
+    return unwrap<YouComDeepResearchResponse>(
+      youcomDeepResearch({
         body: data.requestBody,
         throwOnError: true,
       }),

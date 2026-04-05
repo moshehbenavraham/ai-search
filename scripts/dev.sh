@@ -17,7 +17,7 @@
 #   - Node.js + npm
 #
 
-set -e
+set -euo pipefail
 
 # =============================================================================
 # CONFIGURATION
@@ -54,9 +54,9 @@ show_help() {
     echo "    --help    Show this help message"
     echo ""
     echo -e "${BOLD}SERVICES:${NC}"
-    echo "    PostgreSQL    → localhost:5441"
+    echo "    PostgreSQL    → localhost:5439"
     echo "    Backend       → http://localhost:8009"
-    echo "    Frontend      → http://localhost:5173"
+    echo "    Frontend      → http://localhost:5181"
     echo ""
     exit 0
 }
@@ -268,13 +268,15 @@ set -a
 source "$PROJECT_DIR/.env"
 set +a
 
-# Override for local dev
+# Override for native local dev
 export POSTGRES_SERVER=localhost
-export POSTGRES_PORT=5441
+export POSTGRES_PORT=5439
+export FRONTEND_HOST=http://localhost:5181
+export BACKEND_CORS_ORIGINS="http://localhost,http://localhost:5179,http://localhost:5180,http://localhost:5181,http://localhost:8009,https://localhost,https://localhost:5179,https://localhost:5180,https://localhost:5181,http://localhost.tiangolo.com"
 
 # Run prestart (migrations + create initial superuser)
 echo -e "${BLUE}[BE]${NC} Running database migrations..."
-uv run alembic upgrade head 2>&1 | prefix_output "[BE]" "${BLUE}"
+uv run python -m alembic upgrade head 2>&1 | prefix_output "[BE]" "${BLUE}"
 echo -e "${BLUE}[BE]${NC} Creating initial data..."
 uv run python app/initial_data.py 2>&1 | prefix_output "[BE]" "${BLUE}"
 
@@ -284,7 +286,7 @@ uv run python app/initial_data.py 2>&1 | prefix_output "[BE]" "${BLUE}"
 
 print_status "Starting backend (FastAPI with hot reload)..."
 
-(uv run fastapi dev app/main.py --host 0.0.0.0 --port 8009 2>&1 | prefix_output "[BE]" "${BLUE}") &
+(uv run python -m fastapi dev app/main.py --host 0.0.0.0 --port 8009 2>&1 | prefix_output "[BE]" "${BLUE}") &
 BACKEND_PID=$!
 
 echo -e "${BLUE}[BE]${NC} Backend starting on http://localhost:8009"
@@ -292,6 +294,11 @@ echo -e "${BLUE}[BE]${NC} API docs: http://localhost:8009/docs"
 
 # Give backend a moment to start
 sleep 2
+
+if ! kill -0 "$BACKEND_PID" 2>/dev/null; then
+    echo -e "${RED}[BE]${NC} Backend failed to start."
+    exit 1
+fi
 
 # =============================================================================
 # 4. START FRONTEND
@@ -304,23 +311,28 @@ cd "$PROJECT_DIR/frontend"
 (npm run dev 2>&1 | prefix_output "[FE]" "${MAGENTA}") &
 FRONTEND_PID=$!
 
-echo -e "${MAGENTA}[FE]${NC} Frontend starting on http://localhost:5173"
+echo -e "${MAGENTA}[FE]${NC} Frontend starting on http://localhost:5181"
+
+sleep 2
+
+if ! kill -0 "$FRONTEND_PID" 2>/dev/null; then
+    echo -e "${RED}[FE]${NC} Frontend failed to start."
+    exit 1
+fi
 
 # =============================================================================
 # 5. SHOW STATUS AND WAIT
 # =============================================================================
-
-sleep 2
 
 echo ""
 echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo -e "${GREEN}  All services running!${NC}"
 echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
-echo -e "  ${GREEN}[DB]${NC} PostgreSQL    → localhost:5441"
+echo -e "  ${GREEN}[DB]${NC} PostgreSQL    → localhost:5439"
 echo -e "  ${BLUE}[BE]${NC} Backend       → http://localhost:8009"
 echo -e "  ${BLUE}[BE]${NC} API Docs      → http://localhost:8009/docs"
-echo -e "  ${MAGENTA}[FE]${NC} Frontend      → http://localhost:5173"
+echo -e "  ${MAGENTA}[FE]${NC} Frontend      → http://localhost:5181"
 echo ""
 echo -e "  ${YELLOW}Press Ctrl+C to stop all services${NC}"
 echo ""

@@ -1,323 +1,543 @@
-***
+# You.com Deep Research Integration Plan
 
-title: Research API Overview
-'og:title': You.com Research API | Multi-Step Reasoning with Citations
-'og:description': >-
-Get thorough, well-cited answers to complex questions. The Research API runs
-multiple searches, reads through sources, and synthesizes everything into a
-Markdown response with inline citations.
-----------------------------------------
+## Objective
 
-## Skills (Agent Skills)
+Add You.com's Research API as a fourth research platform in the app, alongside Tavily, Perplexity, and Gemini, with a first-class UI tab, backend proxy endpoint, save-to-Items support, generated client updates, and test coverage.
 
-https://github.com/youdotcom-oss/agent-skills
+This plan is based on:
 
-## What is the Research API?
+- `docs/ongoing-projects/new-tabs.md` for the existing integration pattern
+- the current Perplexity and Gemini implementations already in the repo
+- the You.com Research API details currently captured in this document before replacement
 
-The Research API returns grounded, natural language answers to questions of varying complexity.
-It runs multiple searches, processes the results, cross-references sources, and synthesizes everything into a thorough, Markdown-formatted answer with inline citations.
+## Implementation Status
 
-Ask a hard question, get a researched answer with sources.
+Last updated: 2026-04-05
 
-***
+- Implemented: backend You.com settings, schemas, exception handling, service, route wiring, and item typing
+- Implemented: OpenAPI/client refresh, frontend route/components/hook, sidebar integration, route tree regeneration, and save-to-Items mapper
+- Implemented: backend-focused test files for the new service and route
+- Verified: `cd backend && uv run python -m ruff check ...` passes for the touched backend files
+- Verified: `cd backend && uv run python -m pytest tests/services/test_youcom.py tests/api/routes/test_youcom.py -q` passes once PostgreSQL is available on `localhost:5439` and Alembic migrations are applied
+- Verified: `cd frontend && npm run build` passes
+- Remaining: manual end-to-end verification against a real `YOUCOM_API_KEY`
 
-## How it's different from Search
+### Session Notes
 
-The Search API and the Research API serve different purposes by delivering different outputs:
+- This doc is being updated during implementation so a later session can resume from repo state instead of reconstructing intent from chat history.
+- The backend will follow the synchronous Perplexity-style integration path, not the Gemini polling flow.
+- `frontend` build is passing after the new route and route-tree updates.
+- The backend test fixture uses `backend/.env`, so local test runs target PostgreSQL at `localhost:5439`.
+- In this session, backend verification used a temporary local PostgreSQL container bound to `5439`, followed by `cd backend && uv run python -m alembic upgrade head`.
+- After that DB bootstrap, `uv run python -m pytest tests/services/test_youcom.py tests/api/routes/test_youcom.py -q` passed.
+- The temporary verification database was removed after the test run, and `localhost:5439` is no longer occupied by this session.
 
-|                | Search API                                                         | Research API                                                         |
-| -------------- | ------------------------------------------------------------------ | -------------------------------------------------------------------- |
-| **Input**      | Query, several search parameters (count, language, livecrawl etc.) | Query, research effort                                               |
-| **You get**    | Raw search results (URLs, snippets, metadata)                      | A natural language answer with inline citations, plus search results |
-| **Processing** | Returns results as-is for you to process                           | Reads, reasons over, and synthesizes results for you                 |
-| **Speed**      | Fast — single search round trip                                    | Varies — multiple searches and reasoning steps                       |
-| **Control**    | Full control over how results are used                             | Control depth via `research_effort`                                  |
-| **Best for**   | RAG pipelines, building your own search UI, data gathering         | Answering questions of varying complexity using multiple sources     |
+## Recommended Naming Convention
 
-Use the Search API when you want raw results to feed into your own pipeline. Use the Research API when you want a ready-to-use answer backed by sources.
+Use `youcom` as the internal integration key everywhere code needs a stable identifier.
 
-***
+| Surface | Recommended name |
+|---|---|
+| User-facing label | `You.com Research` |
+| Backend module prefix | `youcom` |
+| API route prefix | `/api/v1/youcom` |
+| Frontend route | `/youcom-research` |
+| Item `content_type` | `youcom` |
+| Env var prefix | `YOUCOM_` |
 
-## How it works
+This avoids punctuation drift between `you.com`, `you-com`, `you_com`, and `you`.
 
-Research operates as an agentic system that autonomously plans and executes a multi-step research strategy for your question.
+## API Shape To Implement
 
-### Search, Contents, and Live News as retrieval primitives
+Treat You.com as a synchronous deep research provider, similar to Perplexity rather than Gemini.
 
-Research uses You.com's Search, Contents, and Live News APIs as its core tools.
-Rather than firing generic web queries, the system selects the right tool for each sub-question — search for discovery, contents for deep page reads, live news for time-sensitive information, and several other internal tools to aid in generating the best possible answer.
-This targeted tool selection reduces wasted calls and gives the reasoning model cleaner inputs at each step.
+### External API contract
 
-The system also evaluates retrieved sources for freshness, diversity, and relevance before incorporating them into the answer.
+- Method: `POST`
+- URL: `https://api.you.com/v1/research`
+- Auth: `X-API-Key: <key>`
+- Request body:
+  - `input: string`
+  - `research_effort: "lite" | "standard" | "deep" | "exhaustive"`
+- Response body:
+  - `output.content`
+  - `output.content_type`
+  - `output.sources[]`
 
-### Context management at scale
+### Internal app contract
 
-Deep research generates far more information than any single LLM context window can hold. Research uses context-masking and compaction strategies that let it operate well beyond those limits — maintaining coherent reasoning across hundreds or thousands of turns without losing track of what it found, what it verified, and what remains unresolved.
+Keep the frontend/backend form contract consistent with the existing app by using `query` internally, then mapping it to `input` inside the service layer.
 
-At higher effort levels, a single query can run more than 1,000 reasoning turns and process up to 10 million tokens.
+Recommended internal request model:
 
-### Budget-based planning
-
-The system receives a compute budget determined by the `research_effort` tier you choose. It plans its approach around that budget, allocating more effort to verifying ambiguous or high-stakes claims and moving quickly through well-sourced facts. This is the mechanism that enables the range of latency, accuracy, and cost tradeoffs across tiers.
-
-***
-
-## What you get
-
-Every Research API response includes:
-
-* **`content`**: A Markdown-formatted answer with numbered inline citations (e.g., `[[1, 2]]`) that reference items in the `sources` array.
-* **`content_type`**: The format of the content field (currently `text`).
-* **`sources`**: The web pages the API read and cited in the answer — each with a URL, title, and relevant snippets.
-
-```json maxLines=25
+```json
 {
-  "output": {
-    "content": "## RISC-V vs ARM: Key Architectural Differences\n\nRISC-V and ARM are both reduced instruction set architectures, but they differ in licensing, extensibility, and ecosystem maturity [[1, 2]].\n\n### Licensing\nARM requires per-chip licensing fees, while RISC-V is open-source and royalty-free [[1, 3]]...",
-    "content_type": "text",
-    "sources": [
-      {
-        "url": "https://example.com/risc-v-vs-arm",
-        "title": "RISC-V vs ARM: A Technical Comparison",
-        "snippets": [
-          "RISC-V's open ISA allows custom extensions without licensing negotiations, making it attractive for specialized hardware."
-        ]
-      },
-      {
-        "url": "https://example.com/processor-architectures",
-        "title": "Modern Processor Architectures Explained",
-        "snippets": [
-          "ARM's mature ecosystem includes extensive tooling and vendor support built over three decades."
-        ]
-      }
-    ]
-  }
+  "query": "string",
+  "research_effort": "standard"
 }
 ```
 
-***
+## Scope
 
-## Key features
+### In scope
 
-### Research effort levels
+- Backend settings, schemas, exceptions, service, dependency wiring, routes, and exception handler
+- Frontend schema, hook, route, form, result view, sidebar entry, and Items save flow
+- OpenAPI regeneration and frontend generated client refresh
+- Docs and env example updates
+- Automated tests for backend service/route behavior and frontend validation/mapping coverage where practical
 
-The `research_effort` parameter controls how much compute the API allocates to your question. Higher effort means more searches, deeper source reading, and more cross-referencing — at the cost of longer response times.
+### Out of scope for first pass
 
-| Level        | Behavior                                | Typical latency | Price per 1,000 requests |
-| ------------ | --------------------------------------- | --------------- | ------------------------ |
-| `lite`       | Quick answer with minimal searching     | \< 2s           | \$10                     |
-| `standard`   | Balanced speed and depth (default)      | \~10–30s        | \$50                     |
-| `deep`       | More searches, deeper cross-referencing | \< 120s         | \$100                    |
-| `exhaustive` | Maximum thoroughness                    | \< 300s         | \$300                    |
+- Streaming support
+- Multi-turn You.com continuation workflows
+- provider-specific advanced options beyond `research_effort`
+- visual redesign of the research pages
 
-For the same query, the difference between tiers is substantial. Here's an abridged comparison for the question *"Which global cities improved air quality the most over the past 10 years, and what measurable actions contributed?"*:
+## Architecture Decision
 
-<Tabs>
-  <Tab title="research_effort = standard">
-    ```json maxLines=40 wordWrap
-    {
-      "output": {
-        "content": "Global assessments show that the largest recent urban air-quality improvements are concentrated in East China, parts of the eastern United States, Europe, and Japan, with especially strong gains in Chinese megacities and cities with aggressive traffic-emissions controls such as London [[1, 2, 3]].\n\n1) Beijing (China) — PM2.5 fell from ~89–90 µg/m³ in 2013 to ~58 µg/m³ in 2017 (about 35–36% in five years), with evidence from both satellite and surface observations [[4, 5]].\nKey drivers included coal phase-down, industrial controls, stricter vehicle/fuel standards, and regional enforcement [[6, 7, 8]].\n\n2) Chinese city clusters (BTH / YRD / PRD) — China's population-weighted PM2.5 fell ~32% from 2013–2017, with the largest modeled decline in Beijing–Tianjin–Hebei (~38%); across 367 cities, observed PM2.5 fell ~44% from 2013–2019 [[9, 10]].\nThe main drivers were national clean-air action plans, coal controls, industrial restructuring, and transport emissions standards [[7, 9, 10]].\n\n3) London (UK) — London achieved major NO2 reductions linked to LEZ/ULEZ policies, with monitoring and modeling studies showing accelerated declines after ULEZ implementation and meaningful reductions versus no-ULEZ scenarios [[11, 12, 13, 14]].",
-        "content_type": "text",
-        "sources": [
-          {
-            "url": "https://pubmed.ncbi.nlm.nih.gov/36356738/",
-            "title": "Trends in urban air pollution over the last two decades: A global perspective - PubMed",
-            "snippets": [
-              "At global scale, PM2.5 exposures declined slightly from 2000 to 2019 ... Improvements were observed in the Eastern US, Europe, Southeast China, and Japan..."
-            ]
-          }
-        ]
-      }
-    }
-    ```
-  </Tab>
+Implement You.com using the Perplexity pattern with a thinner request surface.
 
-  <Tab title="research_effort = exhaustive">
-    ```json maxLines=40 wordWrap
-    {
-      "output": {
-        "content": "There is no single definitive \"top 10\" ranking, but several independent datasets and case studies point to a small group of cities — especially in China plus a few in Europe and North America — that have seen the largest, clearly measured air-quality gains in roughly the last decade. Below are the clearest examples where both (1) large, quantified reductions in PM2.5 or NO2 are documented and (2) specific policies can be tied to those improvements.\n\n1) Beijing (and other major Chinese cities)\nBeijing shows one of the strongest documented improvements globally. Annual mean PM2.5 fell from roughly 89–102 µg/m³ in 2013 to about 32–39 µg/m³ by 2023, implying an approximately 60–65% reduction over about a decade [[1, 2, 3, 4]]. National analyses also show large PM2.5 declines across hundreds of Chinese cities, and EPIC/AQLI attributes a major share of global PM2.5 reduction since 2013 to China's air-quality policies [[5, 6, 7]].\nThe key drivers were policy-led and multi-sector: coal-to-clean energy transition, coal boiler controls, industrial restructuring, tighter emissions standards, vehicle standards and scrappage, fuel quality improvements, and regional coordination across Beijing–Tianjin–Hebei [[8, 9, 10, 11, 12, 13]]. Atmospheric modeling indicates most of Beijing's 2013–2017 PM2.5 improvement was due to emissions reductions rather than weather variation [[2, 8]].\n\n2) Seoul metropolitan area (Seoul, Incheon, Gyeonggi)\nThe Seoul metropolitan region shows strong evidence of long-term emissions reductions tied to policy. Joint Seoul/UNEP assessments report very large reductions in fine particulate emissions (including about a 75% reduction in Seoul's emitted PM2.5 mass and substantial reductions in Gyeonggi) over 2005–2020 [[14]]. Additional studies indicate stricter vehicle-emissions regulations contributed to lower particulate concentrations in the 2010s compared with the 2000s [[15]], while UNEP reports national PM2.5 emissions declines with even greater reductions in Seoul and Gyeonggi [[16]].\nKey actions included tightening vehicle standards, replacing diesel buses with CNG buses, incentivizing after-treatment systems and cleaner vehicles, emissions-cap regulation and trading in the Seoul metropolitan area, fuel switching, and stronger industrial controls [[15, 17, 18, 19]]. Seoul still experiences episodic pollution due in part to transboundary transport, especially from upwind regions [[20, 21, 22]].\n\n3) London (ULEZ, LEZ, congestion charging)...",
-        "content_type": "text",
-        "sources": [
-          {
-            "url": "https://sustainablemobility.iclei.org/air-pollution-beijing/",
-            "title": "Clearing the skies: how Beijing tackled air pollution & what lies ahead - ICLEI Sustainable Mobility",
-            "snippets": [
-              "China played a vital role, accounting for three-quarters of global air pollution reductions from 2013-2020...",
-              "The annual average PM2.5 concentrations ... decreased..."
-            ]
-          }
-        ]
-      }
-    }
-    ```
-  </Tab>
-</Tabs>
+Why:
 
-The `exhaustive` response identifies additional cities (Seoul, with specific UNEP data), includes more granular measurements (µg/m³ ranges, percentage reductions over specific date ranges), and cross-references more sources to verify claims.
+- The API is synchronous
+- The response is already markdown-oriented
+- The app already has a proven sync deep-research path with loading state and save-to-Items
+- Gemini's polling state machine would add unnecessary complexity
 
-### Citation-backed answers
+## Implementation Workstreams
 
-Every claim in the response links back to a specific source via inline citations. Your users (or your system) can verify any statement by following the numbered references to the `sources` array.
+## 1. Backend
 
-### Markdown output
+### 1.1 Configuration
 
-The `content` field is formatted in Markdown with headers, lists, and inline citations — ready to render in a UI or feed into downstream processing.
+Update [backend/app/core/config.py](/home/aiwithapex/projects/ai-search/backend/app/core/config.py) with a new `YouComSettings` class.
 
-***
+Recommended fields:
 
-## Quickstart
+- `api_key: str | None = None`
+- `timeout: int = 300`
+- `default_research_effort: YouComResearchEffort = STANDARD`
 
-<CodeBlock>
-  ```python maxLines=0
-  from youdotcom import You
-  from youdotcom.models import ResearchEffort
+Recommended env vars:
 
-  you = You(api_key_auth="api_key")
+- `YOUCOM_API_KEY`
+- `YOUCOM_TIMEOUT`
+- `YOUCOM_DEFAULT_RESEARCH_EFFORT`
 
-  res = you.research(
-      input="Top 5 EV-selling companies worldwide in 2025 so far",
-      research_effort=ResearchEffort.STANDARD,
-  )
+Add a `YouComResearchEffort` `StrEnum` with:
 
-  print(res.output.content)
+- `lite`
+- `standard`
+- `deep`
+- `exhaustive`
 
-  print(f"\n--- {len(res.output.sources)} sources ---")
-  for i, source in enumerate(res.output.sources, 1):
-      print(f"[{i}] {source.title or 'Untitled'}: {source.url}")
-  ```
+Also register `youcom` on the root `Settings` object, parallel to `tavily`, `perplexity`, and `gemini`.
 
-  ```typescript
-  import { You } from "@youdotcom-oss/sdk";
-  import type { ResearchRequest } from "@youdotcom-oss/sdk/models/operations";
-  import { ResearchEffort } from "@youdotcom-oss/sdk/models/operations";
+### 1.2 Schemas
 
-  const you = new You({ apiKeyAuth: "api_key" });
+Create [backend/app/schemas/youcom.py](/home/aiwithapex/projects/ai-search/backend/app/schemas/youcom.py).
 
-  const request: ResearchRequest = {
-    input: "Top 5 EV-selling companies worldwide in 2025 so far",
-    researchEffort: ResearchEffort.Standard,
-  };
+Recommended models:
 
-  const result = await you.research(request);
+- `YouComResearchEffort`
+- `YouComDeepResearchRequest`
+- `YouComSource`
+- `YouComOutput`
+- `YouComDeepResearchResponse`
 
-  console.log(result.output.content);
+Recommended request schema:
 
-  console.log(`\n--- ${result.output.sources.length} sources ---`);
-  result.output.sources.forEach((s, i) => {
-    console.log(`[${i + 1}] ${s.title ?? s.url}: ${s.url}`);
-  });
-  ```
+- `query: str`
+- `research_effort: YouComResearchEffort = standard`
 
-  ```curl
-  curl -X POST https://api.you.com/v1/research \
-    -H "X-API-Key: api_key" \
-    -H "Content-Type: application/json" \
-    -d '{
-      "input": "Top 5 EV-selling companies worldwide in 2025 so far",
-      "research_effort": "standard"
-    }'
-  ```
-</CodeBlock>
+Recommended response schema:
 
-<Card title="Try in Postman" icon="fa-regular fa-rocket" href="https://www.postman.com/youdotcom/you-com-api-workspace/collection/46015159-b2f6290f-99e7-46e0-9a73-1e5fcd0e81a3">
-  Fork the Research API collection, add your API key to the `production` environment, and hit Send.
-</Card>
+- `output: YouComOutput`
+- permissive `ConfigDict(extra="allow")` on response models so undocumented extra fields do not break parsing
 
-***
+Recommended nested output fields:
 
-## Parameters
+- `content: str`
+- `content_type: str = "text"`
+- `sources: list[YouComSource] = []`
 
-| Parameter         | Type   | Required | Description                                                           |
-| ----------------- | ------ | -------- | --------------------------------------------------------------------- |
-| `input`           | string | Yes      | The research question (max 40,000 characters)                         |
-| `research_effort` | string | No       | Depth of research: `lite`, `standard` (default), `deep`, `exhaustive` |
+Recommended source fields:
 
-[View full API reference](/api-reference/research/v1-research)
+- `url: str`
+- `title: str | None`
+- `snippets: list[str] = []`
 
-***
+### 1.3 Exceptions
 
-## Common use cases
+Create [backend/app/exceptions/youcom.py](/home/aiwithapex/projects/ai-search/backend/app/exceptions/youcom.py).
 
-### Complex question answering
+Mirror the Perplexity/Gemini exception pattern with:
 
-When a question can't be answered from a single source — comparative analyses, multi-factor evaluations, questions that span multiple domains — the Research API handles the synthesis for you.
+- `YouComErrorCode`
+- `YouComAPIError`
+- classmethods for:
+  - invalid API key
+  - rate limit exceeded
+  - invalid request
+  - request timeout
+  - generic API error
 
-```python
-import requests
+Then wire this into [backend/app/main.py](/home/aiwithapex/projects/ai-search/backend/app/main.py) with a dedicated exception handler returning the shared `ErrorResponse`.
 
-API_KEY = "api_key"
+### 1.4 Service Layer
 
-response = requests.post(
-    "https://api.you.com/v1/research",
-    headers={"X-API-Key": API_KEY, "Content-Type": "application/json"},
-    json={
-        "input": "Compare the pricing models of the top 3 vector databases and their tradeoffs for a 10M-document collection",
-        "research_effort": "deep",
-    },
-)
+Create [backend/app/services/youcom.py](/home/aiwithapex/projects/ai-search/backend/app/services/youcom.py).
 
-data = response.json()
-print(data["output"]["content"])
+Responsibilities:
+
+- validate API key presence at initialization
+- build `X-API-Key` auth header
+- map internal request body to external payload:
+  - `query -> input`
+  - `research_effort -> research_effort`
+- perform async `httpx` POST to `https://api.you.com/v1/research`
+- parse and validate the response
+- map HTTP errors into `YouComAPIError`
+
+Implementation notes:
+
+- follow the Perplexity service structure, not the Gemini polling structure
+- keep payload minimal until real product needs require extra You.com options
+- do not depend on undocumented top-level usage or job fields
+
+### 1.5 Dependency Injection and Routes
+
+Update [backend/app/api/deps.py](/home/aiwithapex/projects/ai-search/backend/app/api/deps.py):
+
+- add `get_youcom_service()`
+- add `YouComDep`
+
+Create [backend/app/api/routes/youcom.py](/home/aiwithapex/projects/ai-search/backend/app/api/routes/youcom.py).
+
+Recommended endpoint:
+
+- `POST /api/v1/youcom/deep-research`
+
+Route behavior:
+
+- require JWT auth via `CurrentUser`
+- accept `YouComDeepResearchRequest`
+- return `YouComDeepResearchResponse`
+- delegate directly to `YouComService.deep_research()`
+
+Update [backend/app/api/main.py](/home/aiwithapex/projects/ai-search/backend/app/api/main.py) to include the new router.
+
+### 1.6 Schema Exports
+
+Update [backend/app/schemas/__init__.py](/home/aiwithapex/projects/ai-search/backend/app/schemas/__init__.py) and any exception export modules if the project is maintaining those public imports consistently.
+
+## 2. Frontend
+
+### 2.1 Generated Client Prerequisite
+
+Once the backend route and schemas exist, regenerate the OpenAPI client.
+
+Relevant flow:
+
+- refresh backend OpenAPI
+- run `./scripts/generate-client.sh`
+- verify generated You.com types and service methods appear under `frontend/src/client-generated/`
+
+Do not hand-edit generated files.
+
+### 2.2 Form Validation Schema
+
+Create [frontend/src/lib/schemas/youcom.ts](/home/aiwithapex/projects/ai-search/frontend/src/lib/schemas/youcom.ts).
+
+Recommended contents:
+
+- `researchEffortOptions = ["lite", "standard", "deep", "exhaustive"]`
+- `youComDeepResearchSchema`
+- `YouComFormData`
+- `youComFormDefaults`
+
+Recommended validation:
+
+- `query` required, trimmed, bounded
+- `research_effort` enum with default `standard`
+
+### 2.3 Data Hook
+
+Create [frontend/src/hooks/useYouComDeepResearch.ts](/home/aiwithapex/projects/ai-search/frontend/src/hooks/useYouComDeepResearch.ts).
+
+Pattern:
+
+- use `useMutation`
+- call generated `YouComService.deepResearch(...)`
+- route errors through `useCustomToast`
+- match the existing Perplexity hook style
+
+### 2.4 UI Components
+
+Create a new folder:
+
+- [frontend/src/components/YouCom](/home/aiwithapex/projects/ai-search/frontend/src/components/YouCom)
+
+Recommended components:
+
+- `YouComDeepResearchForm.tsx`
+- `YouComResultView.tsx`
+- `YouComSourcesList.tsx`
+- `index.ts`
+
+Form responsibilities:
+
+- collect query
+- collect research effort
+- disable during request
+- stay visually aligned with Perplexity/Gemini pages
+
+Result view responsibilities:
+
+- render `response.output.content` as markdown
+- render source list from `response.output.sources`
+- expose Save action to Items
+- show empty-state fallback if content is missing
+
+### 2.5 Route Page
+
+Create [frontend/src/routes/_layout/youcom-research.tsx](/home/aiwithapex/projects/ai-search/frontend/src/routes/_layout/youcom-research.tsx).
+
+Pattern:
+
+- copy the Perplexity page structure, then simplify to only the You.com fields
+- local state for `result`, `lastQuery`, and `elapsedSeconds`
+- loading card while the mutation is pending
+- result card after success
+- error card after failure
+
+Header copy should make the synchronous behavior clear:
+
+- comprehensive research with citations
+- slower than standard Tavily search
+- no background job or polling required
+
+### 2.6 Navigation
+
+Update [frontend/src/components/Sidebar/AppSidebar.tsx](/home/aiwithapex/projects/ai-search/frontend/src/components/Sidebar/AppSidebar.tsx).
+
+Add a new entry under `deepResearchItems`:
+
+- title: `You.com Research`
+- path: `/youcom-research`
+- icon: choose one that does not collide visually with the existing research items
+
+### 2.7 Route Tree
+
+Let TanStack Router regenerate [frontend/src/routeTree.gen.ts](/home/aiwithapex/projects/ai-search/frontend/src/routeTree.gen.ts) from the new route file. Do not edit that file directly.
+
+## 3. Items Integration
+
+You.com results should be savable exactly like Perplexity and Gemini research outputs.
+
+### 3.1 Shared Data Mapping
+
+Update [frontend/src/lib/deep-research-mappers.ts](/home/aiwithapex/projects/ai-search/frontend/src/lib/deep-research-mappers.ts).
+
+Add:
+
+- `mapYouComResultToItem(response, query): ItemCreate`
+
+Recommended mapping:
+
+- `title`: `You.com: ${query}`
+- `description`: first 255 chars of the content
+- `content`: `response.output.content`
+- `content_type`: `youcom`
+- `item_metadata`:
+  - `query`
+  - `research_effort` if available from the request context
+  - `content_type`
+  - `sources`
+
+If the save action needs the selected effort later, pass it into the mapper explicitly from the route or result view.
+
+### 3.2 Backend Item Typing
+
+Update [backend/app/models.py](/home/aiwithapex/projects/ai-search/backend/app/models.py):
+
+- extend `ContentType` with `youcom`
+
+Update [backend/app/api/routes/items.py](/home/aiwithapex/projects/ai-search/backend/app/api/routes/items.py):
+
+- extend `ContentTypeFilter` with `youcom`
+
+Important:
+
+- no database migration should be required for `content_type`
+- the column is already stored as a plain `String(50)`, so this is an application-schema change, not a table-shape change
+
+### 3.3 Frontend Item Typing
+
+Update:
+
+- [frontend/src/components/Items/ContentTypeFilter.tsx](/home/aiwithapex/projects/ai-search/frontend/src/components/Items/ContentTypeFilter.tsx)
+- [frontend/src/components/Items/ContentTypeBadge.tsx](/home/aiwithapex/projects/ai-search/frontend/src/components/Items/ContentTypeBadge.tsx)
+
+Add:
+
+- display label `You.com`
+- a distinct badge color
+- filter option for `youcom`
+
+Generated client types will also pick up the new `content_type` union after regeneration.
+
+## 4. Documentation and Environment Updates
+
+Update these docs so the integration is discoverable and configurable:
+
+- [.env.example](/home/aiwithapex/projects/ai-search/.env.example)
+- [README.md](/home/aiwithapex/projects/ai-search/README.md)
+- [docs/environments.md](/home/aiwithapex/projects/ai-search/docs/environments.md)
+- [backend/README_backend.md](/home/aiwithapex/projects/ai-search/backend/README_backend.md)
+- [frontend/README_frontend.md](/home/aiwithapex/projects/ai-search/frontend/README_frontend.md)
+
+Environment rollout status:
+
+- local `.env` should contain `YOUCOM_API_KEY`
+- `.env.example` should carry the placeholder and default You.com settings
+
+Recommended env example entries:
+
+```env
+YOUCOM_API_KEY=
+YOUCOM_TIMEOUT=300
+YOUCOM_DEFAULT_RESEARCH_EFFORT=standard
 ```
 
-### Due diligence and market research
+## 5. Test Plan
 
-Quickly gather verified, cited information about companies, markets, or technologies. The citation-backed output gives you traceability that raw LLM generation can't.
+## Backend tests
 
-### Internal tools and knowledge assistants
+Add focused tests for:
 
-Build internal research tools where employees can ask complex questions and get sourced answers — product comparisons, regulatory summaries, technical deep dives — without manually reading dozens of pages.
+- request validation on `YouComDeepResearchRequest`
+- service payload mapping from `query` to `input`
+- auth header formatting
+- success response parsing
+- HTTP error mapping for 400, 401, 429, timeout, and unexpected errors
+- route auth requirement and happy-path response shape
 
-### Content creation pipelines
+Likely files:
 
-Use the Research API as the first step in a content pipeline: ask a research question, get a cited draft, then use it as source material for blog posts, reports, or briefings.
+- `backend/tests/services/test_youcom.py`
+- `backend/tests/api/routes/test_youcom.py`
 
-***
+Mock `httpx.AsyncClient` responses rather than calling the real You.com API in normal test runs.
 
-## Best practices
+## Frontend tests
 
-### Match research effort to the question
+At minimum, add unit-level coverage for:
 
-Don't use `exhaustive` for simple factual questions — `lite` or `standard` will be faster and cheaper. Save `deep` and `exhaustive` for questions where thoroughness and accuracy justify the longer response time.
+- `youcom` zod schema defaults and validation
+- `mapYouComResultToItem`
 
-### Verify citations for high-stakes use cases
+If the repo already has a testing setup for frontend components, add coverage for:
 
-The inline citations make verification straightforward. For legal, financial, or medical contexts, build a step that follows citation URLs to confirm claims before surfacing them to end users.
+- form submission payload
+- result rendering for markdown and sources
+- save button behavior
 
-### Use structured inputs for better results
+## Manual verification
 
-The `input` field supports up to 40,000 characters. For complex research tasks, include context, constraints, or specific angles you want covered. A well-scoped question produces a more focused answer.
+Run through:
 
-***
+1. Open `/youcom-research`
+2. Submit a valid query with each effort tier at least once
+3. Confirm loading state behaves like Perplexity
+4. Confirm markdown answer renders correctly
+5. Confirm sources render correctly
+6. Save result to Items
+7. Confirm the saved item shows `You.com` badge and can be filtered by type
+8. Confirm unauthorized requests still fail correctly if JWT is missing
 
-## Pricing
+## 6. Suggested Delivery Order
 
-Pricing is fixed per tier — see the [research effort levels table](#research-effort-levels) above for per-tier pricing and latency. For more details, visit [https://you.com/pricing](https://you.com/pricing)) or contact [api@you.com](mailto:api@you.com).
+Implement in this order to keep feedback loops short:
 
-***
+1. Backend config, schemas, exception, service, route
+2. OpenAPI regeneration and generated client refresh
+3. Frontend schema, hook, route, form, result view
+4. Sidebar integration
+5. Items integration and `content_type` updates
+6. Docs and env updates
+7. Backend and frontend tests
+8. Manual verification
 
-## Try it
+## 7. Concrete File Checklist
 
-<Card title="Research template" icon="fa-regular fa-microscope" href="/examples/research">
-  See a working app that runs in-depth research and returns answers with citations.
-</Card>
+### Create
 
-***
+- `backend/app/schemas/youcom.py`
+- `backend/app/exceptions/youcom.py`
+- `backend/app/services/youcom.py`
+- `backend/app/api/routes/youcom.py`
+- `frontend/src/lib/schemas/youcom.ts`
+- `frontend/src/hooks/useYouComDeepResearch.ts`
+- `frontend/src/components/YouCom/index.ts`
+- `frontend/src/components/YouCom/YouComDeepResearchForm.tsx`
+- `frontend/src/components/YouCom/YouComResultView.tsx`
+- `frontend/src/components/YouCom/YouComSourcesList.tsx`
+- `frontend/src/routes/_layout/youcom-research.tsx`
+- `backend/tests/services/test_youcom.py`
+- `backend/tests/api/routes/test_youcom.py`
 
-## Next steps
+### Update
 
-<CardGroup cols={2}>
-  <Card title="API Reference" icon="fa-regular fa-code" href="/api-reference/research/v1-research">
-    Full parameter reference, request/response schemas and interactive playground
-  </Card>
+- `backend/app/core/config.py`
+- `backend/app/api/deps.py`
+- `backend/app/api/main.py`
+- `backend/app/main.py`
+- `backend/app/models.py`
+- `backend/app/api/routes/items.py`
+- `backend/app/schemas/__init__.py`
+- `frontend/src/lib/deep-research-mappers.ts`
+- `frontend/src/components/Sidebar/AppSidebar.tsx`
+- `frontend/src/components/Items/ContentTypeFilter.tsx`
+- `frontend/src/components/Items/ContentTypeBadge.tsx`
+- `frontend/src/routeTree.gen.ts`
+- `frontend/src/client-generated/*`
+- `frontend/src/client/*`
+- `.env.example`
+- `README.md`
+- `docs/environments.md`
+- `backend/README_backend.md`
+- `frontend/README_frontend.md`
 
-  <Card title="Try the Search API" icon="fa-regular fa-search" href="/search/overview">
-    Get raw search results for your own pipelines instead of synthesized answers
-  </Card>
+## 8. Risks and Decisions To Keep Explicit
 
-  <Card title="Quickstart" icon="fa-regular fa-play" href="/quickstart">
-    Get your API key and try all our APIs in under five minutes
-  </Card>
-</CardGroup>
+### Minimal request surface first
+
+Do not import every possible You.com capability into v1 of this tab. Start with `query` plus `research_effort`. That matches the documented API and keeps the UI coherent.
+
+### Preserve internal consistency
+
+Use `query` in app-level forms and schemas even though the upstream API uses `input`. The service layer should absorb that mismatch.
+
+### Avoid generated-file drift
+
+The route, item union, and response models will change the OpenAPI schema. Regenerate the client once the backend contract is stable, and avoid hand-fixing generated code.
+
+### No migration unless model shape changes
+
+Adding `youcom` to the content-type literal should not require a new Alembic revision because the DB column already exists and is not constrained to a DB enum.
+
+## 9. Definition of Done
+
+The You.com integration is complete when:
+
+- authenticated users can open `/youcom-research`
+- users can submit a query and choose effort
+- the backend successfully proxies to You.com with `X-API-Key`
+- the frontend renders markdown results and sources
+- results can be saved to Items with `content_type = "youcom"`
+- Items can filter and badge You.com content
+- docs and env examples mention You.com
+- backend tests pass for the new service/route
+- generated client code is updated and committed

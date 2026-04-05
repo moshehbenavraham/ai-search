@@ -18,6 +18,7 @@ The frontend is built with [Vite](https://vitejs.dev/), [React](https://reactjs.
 | Route | File | Description |
 |-------|------|-------------|
 | `/perplexity-research` | `src/routes/_layout/perplexity-research.tsx` | Perplexity Sonar deep research |
+| `/youcom-research` | `src/routes/_layout/youcom-research.tsx` | You.com synchronous research with sources |
 | `/gemini-research` | `src/routes/_layout/gemini-research.tsx` | Gemini async research with polling |
 
 ## Components
@@ -48,9 +49,15 @@ The frontend is built with [Vite](https://vitejs.dev/), [React](https://reactjs.
 - **GeminiCancelButton** - Cancel in-progress research
 - **GeminiUsageStats** - Token usage display
 
+### YouCom (`src/components/YouCom/`)
+
+- **YouComDeepResearchForm** - Query plus research-effort selection
+- **YouComResultView** - Markdown report display with save action
+- **YouComSourcesList** - Source list with snippets
+
 ### Items (`src/components/Items/`)
 
-- **ContentTypeBadge** - Type badge (search, extract, crawl, map, perplexity, gemini)
+- **ContentTypeBadge** - Type badge (search, extract, crawl, map, perplexity, gemini, youcom)
 - **ContentTypeFilter** - Filter by content type
 
 ## Hooks
@@ -59,6 +66,7 @@ The frontend is built with [Vite](https://vitejs.dev/), [React](https://reactjs.
 |------|------|---------|
 | `useSaveToItems` | `hooks/useSaveToItems.ts` | Save results to Items |
 | `usePerplexityDeepResearch` | `hooks/usePerplexityDeepResearch.ts` | Perplexity mutation |
+| `useYouComDeepResearch` | `hooks/useYouComDeepResearch.ts` | You.com mutation |
 | `useGeminiStartResearch` | `hooks/useGeminiDeepResearch.ts` | Start Gemini job |
 | `useGeminiPollResearch` | `hooks/useGeminiDeepResearch.ts` | Poll Gemini status |
 | `useGeminiCancelResearch` | `hooks/useGeminiDeepResearch.ts` | Cancel Gemini job |

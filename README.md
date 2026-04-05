@@ -1,6 +1,6 @@
 # ai-search
 
-AI-powered research application integrating Tavily, Perplexity Sonar, and Google Gemini APIs with a FastAPI backend and React frontend.  Project was started on FastAPI's Boilerplate.
+AI-powered research application integrating Tavily, Perplexity Sonar, You.com Research, and Google Gemini APIs with a FastAPI backend and React frontend. Project was started on FastAPI's Boilerplate.
 
 ## Quick Start
 
@@ -24,14 +24,14 @@ Access the app at http://localhost:5179
 .
 ├── backend/           # FastAPI backend with API integrations
 │   ├── app/
-│   │   ├── api/routes/     # Tavily, Perplexity, Gemini endpoints
+│   │   ├── api/routes/     # Tavily, Perplexity, You.com, Gemini endpoints
 │   │   ├── schemas/        # Pydantic request/response models
 │   │   └── services/       # Service classes for each API
 │   └── tests/              # pytest tests
 ├── frontend/          # React 19 + TypeScript frontend
 │   ├── src/
 │   │   ├── client/         # Generated OpenAPI client
-│   │   ├── components/     # Tavily, Perplexity, Gemini components
+│   │   ├── components/     # Tavily, Perplexity, You.com, Gemini components
 │   │   └── routes/         # Page routes
 │   └── tests/              # Playwright e2e tests
 ├── docs/              # Reference documentation
@@ -57,6 +57,12 @@ All endpoints require JWT authentication.
 |----------|--------|-------------|
 | `/api/v1/perplexity/deep-research` | POST | AI-powered research with citations |
 
+### You.com Research (Deep Research - Synchronous)
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/v1/youcom/deep-research` | POST | Synchronous markdown research with cited sources |
+
 ### Gemini (Deep Research - Asynchronous)
 
 | Endpoint | Method | Description |
@@ -81,7 +87,7 @@ All endpoints require JWT authentication.
 ### Backend
 - **FastAPI** - Python web framework
 - **tavily-python** - Official Tavily SDK
-- **httpx** - Async HTTP client for Perplexity/Gemini
+- **httpx** - Async HTTP client for Perplexity/Gemini/You.com
 - **SQLModel** - ORM for PostgreSQL
 - **Pydantic** - Data validation
 
@@ -100,6 +106,7 @@ Copy `.env.example` to `.env` and configure:
 |----------|----------|-------------|
 | `TAVILY_API_KEY` | Yes | Tavily API key from https://tavily.com |
 | `PERPLEXITY_API_KEY` | For deep research | Perplexity API key from https://perplexity.ai |
+| `YOUCOM_API_KEY` | For deep research | You.com Research API key from https://you.com |
 | `GEMINI_API_KEY` | For deep research | Gemini API key from https://ai.google.dev |
 | `SECRET_KEY` | Yes | JWT signing key |
 | `POSTGRES_PASSWORD` | Yes | Database password |

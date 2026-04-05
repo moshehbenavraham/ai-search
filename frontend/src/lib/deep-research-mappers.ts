@@ -2,6 +2,7 @@ import type {
   GeminiDeepResearchResultResponse,
   ItemCreate,
   PerplexityDeepResearchResponse,
+  YouComDeepResearchResponse,
 } from "@/client/types.gen"
 
 /**
@@ -84,6 +85,34 @@ export function mapGeminiResultToItem(
       usage: response.usage || null,
       completed_at: response.completed_at || null,
       event_type: response.event_type || null,
+    },
+  }
+}
+
+/**
+ * Maps a You.com deep research response to ItemCreate format.
+ * Stores content, sources, and request context in item_metadata.
+ */
+export function mapYouComResultToItem(
+  response: YouComDeepResearchResponse,
+  query: string,
+  researchEffort?: string,
+): ItemCreate {
+  const content = sanitizeString(
+    response.output?.content || "No content available",
+  )
+
+  return {
+    title: `You.com: ${sanitizeString(query).slice(0, 200)}`.slice(0, 255),
+    description: content.slice(0, 255),
+    source_url: null,
+    content,
+    content_type: "youcom",
+    item_metadata: {
+      query,
+      research_effort: researchEffort || null,
+      content_type: response.output?.content_type || "text",
+      sources: response.output?.sources || [],
     },
   }
 }

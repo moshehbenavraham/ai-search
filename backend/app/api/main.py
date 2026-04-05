@@ -9,6 +9,7 @@ from app.api.routes import (
     tavily,
     users,
     utils,
+    youcom,
 )
 from app.core.config import settings
 
@@ -20,6 +21,7 @@ api_router.include_router(items.router)
 api_router.include_router(tavily.router)
 api_router.include_router(perplexity.router)
 api_router.include_router(gemini.router)
+api_router.include_router(youcom.router)
 
 
 if settings.ENVIRONMENT == "local":

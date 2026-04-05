@@ -15,6 +15,7 @@ import { Route as RecoverPasswordRouteImport } from './routes/recover-password'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LayoutRouteImport } from './routes/_layout'
 import { Route as LayoutIndexRouteImport } from './routes/_layout/index'
+import { Route as LayoutYoucomResearchRouteImport } from './routes/_layout/youcom-research'
 import { Route as LayoutSettingsRouteImport } from './routes/_layout/settings'
 import { Route as LayoutSearchRouteImport } from './routes/_layout/search'
 import { Route as LayoutPerplexityResearchRouteImport } from './routes/_layout/perplexity-research'
@@ -52,6 +53,11 @@ const LayoutRoute = LayoutRouteImport.update({
 const LayoutIndexRoute = LayoutIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => LayoutRoute,
+} as any)
+const LayoutYoucomResearchRoute = LayoutYoucomResearchRouteImport.update({
+  id: '/youcom-research',
+  path: '/youcom-research',
   getParentRoute: () => LayoutRoute,
 } as any)
 const LayoutSettingsRoute = LayoutSettingsRouteImport.update({
@@ -116,6 +122,7 @@ export interface FileRoutesByFullPath {
   '/perplexity-research': typeof LayoutPerplexityResearchRoute
   '/search': typeof LayoutSearchRoute
   '/settings': typeof LayoutSettingsRoute
+  '/youcom-research': typeof LayoutYoucomResearchRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
@@ -131,6 +138,7 @@ export interface FileRoutesByTo {
   '/perplexity-research': typeof LayoutPerplexityResearchRoute
   '/search': typeof LayoutSearchRoute
   '/settings': typeof LayoutSettingsRoute
+  '/youcom-research': typeof LayoutYoucomResearchRoute
   '/': typeof LayoutIndexRoute
 }
 export interface FileRoutesById {
@@ -149,6 +157,7 @@ export interface FileRoutesById {
   '/_layout/perplexity-research': typeof LayoutPerplexityResearchRoute
   '/_layout/search': typeof LayoutSearchRoute
   '/_layout/settings': typeof LayoutSettingsRoute
+  '/_layout/youcom-research': typeof LayoutYoucomResearchRoute
   '/_layout/': typeof LayoutIndexRoute
 }
 export interface FileRouteTypes {
@@ -168,6 +177,7 @@ export interface FileRouteTypes {
     | '/perplexity-research'
     | '/search'
     | '/settings'
+    | '/youcom-research'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
@@ -183,6 +193,7 @@ export interface FileRouteTypes {
     | '/perplexity-research'
     | '/search'
     | '/settings'
+    | '/youcom-research'
     | '/'
   id:
     | '__root__'
@@ -200,6 +211,7 @@ export interface FileRouteTypes {
     | '/_layout/perplexity-research'
     | '/_layout/search'
     | '/_layout/settings'
+    | '/_layout/youcom-research'
     | '/_layout/'
   fileRoutesById: FileRoutesById
 }
@@ -253,6 +265,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof LayoutIndexRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/youcom-research': {
+      id: '/_layout/youcom-research'
+      path: '/youcom-research'
+      fullPath: '/youcom-research'
+      preLoaderRoute: typeof LayoutYoucomResearchRouteImport
       parentRoute: typeof LayoutRoute
     }
     '/_layout/settings': {
@@ -331,6 +350,7 @@ interface LayoutRouteChildren {
   LayoutPerplexityResearchRoute: typeof LayoutPerplexityResearchRoute
   LayoutSearchRoute: typeof LayoutSearchRoute
   LayoutSettingsRoute: typeof LayoutSettingsRoute
+  LayoutYoucomResearchRoute: typeof LayoutYoucomResearchRoute
   LayoutIndexRoute: typeof LayoutIndexRoute
 }
 
@@ -344,6 +364,7 @@ const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutPerplexityResearchRoute: LayoutPerplexityResearchRoute,
   LayoutSearchRoute: LayoutSearchRoute,
   LayoutSettingsRoute: LayoutSettingsRoute,
+  LayoutYoucomResearchRoute: LayoutYoucomResearchRoute,
   LayoutIndexRoute: LayoutIndexRoute,
 }
 

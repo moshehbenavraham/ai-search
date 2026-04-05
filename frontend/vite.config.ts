@@ -67,6 +67,11 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  server: {
+    host: "0.0.0.0",
+    port: 5181,
+    strictPort: true,
+  },
   plugins: [
     tanstackRouter({
       target: "react",

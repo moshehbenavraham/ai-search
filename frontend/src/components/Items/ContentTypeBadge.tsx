@@ -8,6 +8,7 @@ type ContentType =
   | "map"
   | "perplexity"
   | "gemini"
+  | "youcom"
   | null
   | undefined
 
@@ -48,6 +49,11 @@ const CONTENT_TYPE_CONFIG: Record<
     label: "Gemini",
     className:
       "bg-indigo-100 text-indigo-800 border-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-300 dark:border-indigo-800",
+  },
+  youcom: {
+    label: "You.com",
+    className:
+      "bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-800",
   },
 }
 

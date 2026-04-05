@@ -15,6 +15,7 @@ from app.models import TokenPayload, User
 from app.services.gemini import GeminiService
 from app.services.perplexity import PerplexityService
 from app.services.tavily import TavilyService
+from app.services.youcom import YouComService
 
 reusable_oauth2 = OAuth2PasswordBearer(
     tokenUrl=f"{settings.API_V1_STR}/login/access-token"
@@ -64,6 +65,15 @@ def get_gemini_service() -> GeminiService:
 
 
 GeminiDep = Annotated[GeminiService, Depends(get_gemini_service)]
+
+
+def get_youcom_service() -> YouComService:
+    """Factory function for YouComService dependency injection."""
+
+    return YouComService()
+
+
+YouComDep = Annotated[YouComService, Depends(get_youcom_service)]
 
 
 def get_current_user(session: SessionDep, token: TokenDep) -> User:

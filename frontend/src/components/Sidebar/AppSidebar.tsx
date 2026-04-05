@@ -1,5 +1,6 @@
 import { Link as RouterLink, useRouterState } from "@tanstack/react-router"
 import {
+  BrainCircuit,
   Briefcase,
   FileText,
   Globe,
@@ -47,6 +48,11 @@ const deepResearchItems: Item[] = [
     icon: Sparkles,
     title: "Perplexity Research",
     path: "/perplexity-research",
+  },
+  {
+    icon: BrainCircuit,
+    title: "You.com Research",
+    path: "/youcom-research",
   },
   { icon: Telescope, title: "Gemini Research", path: "/gemini-research" },
 ]

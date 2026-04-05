@@ -50,9 +50,11 @@ The backend is automatically configured to use Mailcatcher when running with Doc
 
 The Docker Compose files are configured so that each of the services is available in a different port in `localhost`.
 
-For the backend and frontend, they use the same port that would be used by their local development server, so, the backend is at `http://localhost:8009` and the frontend at `http://localhost:5179`.
+For the backend, the local native dev server uses the same port as Docker Compose: `http://localhost:8009`.
 
-This way, you could turn off a Docker Compose service and start its local development service, and everything would keep working, because it all uses the same ports.
+For the frontend, Docker Compose serves the production-like build at `http://localhost:5179`, while the native Vite dev server runs at `http://localhost:5181`.
+
+This way, you can use Docker for the database and optional production-like frontend, while native development uses the backend on `8009` and the Vite frontend on `5181`.
 
 For example, you can stop that `frontend` service in the Docker Compose, in another terminal, run:
 
@@ -66,6 +68,8 @@ And then start the local frontend development server:
 cd frontend
 npm run dev
 ```
+
+That local frontend server runs at `http://localhost:5181`.
 
 Or you could stop the `backend` Docker Compose service:
 
