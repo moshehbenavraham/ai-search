@@ -19,7 +19,7 @@ dependencies = [
     # Pin bcrypt to 4.0.1 - last version with __about__ attribute that passlib needs
     "bcrypt==4.0.1",
     "pydantic-settings<3.0.0,>=2.2.1",
-    "sentry-sdk[fastapi]<2.0.0,>=1.40.6",
+    "sentry-sdk[fastapi]>=2.60.0,<3.0.0",
     "pyjwt<3.0.0,>=2.8.0",
     "tavily-python>=0.7.24",
 ]
