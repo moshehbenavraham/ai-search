@@ -117,7 +117,7 @@ The changes to that file only affect the local development environment, not the 
 
 For example, the directory with the backend code is synchronized in the Docker container, copying the code you change live to the directory inside the container. That allows you to test your changes right away, without having to build the Docker image again. It should only be done during development, for production, you should build the Docker image with a recent version of the backend code. But during development, it allows you to iterate very fast.
 
-There is also a command override that runs `fastapi run --reload` instead of the default `fastapi run`. It starts a single server process (instead of multiple, as would be for production) and reloads the process whenever the code changes. Have in mind that if you have a syntax error and save the Python file, it will break and exit, and the container will stop. After that, you can restart the container by fixing the error and running again:
+There is also a command override that runs `uvicorn app.main:app --reload` instead of the default multi-worker `uvicorn` command. It starts a single server process (instead of multiple, as would be for production) and reloads the process whenever the code changes. Have in mind that if you have a syntax error and save the Python file, it will break and exit, and the container will stop. After that, you can restart the container by fixing the error and running again:
 
 ```console
 $ docker compose watch
@@ -145,16 +145,16 @@ root@7f2607af31c3:/app#
 
 that means that you are in a `bash` session inside your container, as a `root` user, under the `/app` directory, this directory has another directory called "app" inside, that's where your code lives inside the container: `/app/app`.
 
-There you can use the `fastapi run --reload` command to run the debug live reloading server.
+There you can use the `uvicorn app.main:app --reload --host 0.0.0.0 --port 8000` command to run the debug live reloading server.
 
 ```console
-$ fastapi run --reload app/main.py
+$ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 ...it will look like:
 
 ```console
-root@7f2607af31c3:/app# fastapi run --reload app/main.py
+root@7f2607af31c3:/app# uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 and then hit enter. That runs the live reloading server that auto reloads when it detects code changes.
