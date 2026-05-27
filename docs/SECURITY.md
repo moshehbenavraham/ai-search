@@ -12,7 +12,7 @@ You are encouraged to write tests for your application and update your versions 
 
 ## Reporting a Vulnerability
 
-If you think you found a vulnerability, and even if you are not sure about it, please report it right away by sending an email to: security@tiangolo.com. Please try to be as explicit as possible, describing all the steps and example code to reproduce the security issue.
+If you think you found a vulnerability, and even if you are not sure about it, please report it privately through GitHub Security Advisories or by contacting the repository maintainer directly. Please try to be as explicit as possible, describing all the steps and example code to reproduce the security issue.
 
 We will review it thoroughly and get back to you.
 

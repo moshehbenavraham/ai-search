@@ -1,10 +1,9 @@
 services:
 
-  # Local services are available on their ports, but also available on:
-  # http://api.localhost.tiangolo.com: backend
-  # http://dashboard.localhost.tiangolo.com: frontend
-  # etc. To enable it, update .env, set:
-  # DOMAIN=localhost.tiangolo.com
+  # Local services are available directly on their published ports:
+  # http://localhost:8009: backend
+  # http://localhost:5179: frontend
+  # http://localhost:8088: adminer
   proxy:
     image: traefik:v3.7
     # Note: Docker provider disabled for local dev due to API version incompatibility

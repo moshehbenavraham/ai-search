@@ -272,7 +272,7 @@ set +a
 export POSTGRES_SERVER=localhost
 export POSTGRES_PORT=5439
 export FRONTEND_HOST=http://localhost:5181
-export BACKEND_CORS_ORIGINS="http://localhost,http://localhost:5179,http://localhost:5180,http://localhost:5181,http://localhost:8009,https://localhost,https://localhost:5179,https://localhost:5180,https://localhost:5181,http://localhost.tiangolo.com"
+export BACKEND_CORS_ORIGINS="http://localhost,http://localhost:5179,http://localhost:5180,http://localhost:5181,http://localhost:8009,https://localhost,https://localhost:5179,https://localhost:5180,https://localhost:5181"
 
 # Run prestart (migrations + create initial superuser)
 echo -e "${BLUE}[BE]${NC} Running database migrations..."
