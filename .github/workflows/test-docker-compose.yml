@@ -17,6 +17,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          token: ${{ github.token }}
       - name: Prepare environment
         run: |
           cp .env.example .env
