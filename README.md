@@ -106,7 +106,7 @@ Copy `.env.example` to `.env` and configure:
 |----------|----------|-------------|
 | `TAVILY_API_KEY` | Yes | Tavily API key from https://tavily.com |
 | `PERPLEXITY_API_KEY` | For deep research | Perplexity API key from https://perplexity.ai |
-| `YOUCOM_API_KEY` | For deep research | You.com Research API key from https://you.com |
+| `YDC_API_KEY` | For deep research | You.com Research API key from https://you.com (legacy `YOUCOM_API_KEY` is also accepted) |
 | `GEMINI_API_KEY` | For deep research | Gemini API key from https://ai.google.dev |
 | `SECRET_KEY` | Yes | JWT signing key |
 | `POSTGRES_PASSWORD` | Yes | Database password |

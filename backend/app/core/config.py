@@ -3,6 +3,7 @@ from enum import StrEnum
 from typing import Annotated, Any, Literal
 
 from pydantic import (
+    AliasChoices,
     AnyUrl,
     BeforeValidator,
     EmailStr,
@@ -211,7 +212,8 @@ class YouComSettings(BaseSettings):
     """Configuration for You.com Research API integration.
 
     Environment variables:
-        YOUCOM_API_KEY: API key from You.com (optional)
+        YDC_API_KEY: API key from You.com (optional; YOUCOM_API_KEY accepted as
+            a legacy fallback)
         YOUCOM_TIMEOUT: Request timeout in seconds (default: 300)
         YOUCOM_DEFAULT_RESEARCH_EFFORT: Default research effort (default: standard)
     """
@@ -221,11 +223,17 @@ class YouComSettings(BaseSettings):
         env_ignore_empty=True,
         extra="ignore",
         env_prefix="YOUCOM_",
+        # Accept the existing Python field name as well as environment aliases.
+        populate_by_name=True,
     )
 
     api_key: str | None = Field(
         default=None,
         description="You.com API key for authentication",
+        # Prefer the canonical YDC_API_KEY; fall back to the legacy
+        # YOUCOM_API_KEY for backward compatibility. validation_alias
+        # bypasses env_prefix, so both names are spelled out in full.
+        validation_alias=AliasChoices("YDC_API_KEY", "YOUCOM_API_KEY"),
     )
     timeout: int = Field(
         default=300,
