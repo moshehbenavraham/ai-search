@@ -16,8 +16,10 @@ wait_seconds = 1
 @retry(
     stop=stop_after_attempt(max_tries),
     wait=wait_fixed(wait_seconds),
-    before=before_log(logger, logging.INFO),
-    after=after_log(logger, logging.WARN),
+    # Tenacity 9.1.4's LoggerProtocol is rejected by mypy 1.11.2 for stdlib
+    # Logger, but these callbacks only call log(level, message) positionally.
+    before=before_log(logger, logging.INFO),  # type: ignore[arg-type]
+    after=after_log(logger, logging.WARN),  # type: ignore[arg-type]
 )
 def init(db_engine: Engine) -> None:
     try:

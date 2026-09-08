@@ -1,11 +1,13 @@
-FROM mcr.microsoft.com/playwright:v1.60.0-noble
+FROM mcr.microsoft.com/playwright:v1.62.1-noble
 
 WORKDIR /app
 
 COPY package*.json /app/
 
-RUN npm install
+RUN npm ci
 
 COPY ./ /app/
+
+RUN node scripts/check-playwright-version.mjs
 
 ARG VITE_API_URL=${VITE_API_URL}
