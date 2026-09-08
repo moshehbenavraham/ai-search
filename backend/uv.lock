@@ -105,7 +105,7 @@ requires-dist = [
     { name = "python-multipart", specifier = ">=0.0.27,<1.0.0" },
     { name = "sentry-sdk", extras = ["fastapi"], specifier = ">=2.61.0,<3.0.0" },
     { name = "sqlmodel", specifier = ">=0.0.38,<1.0.0" },
-    { name = "tavily-python", specifier = ">=0.7.24" },
+    { name = "tavily-python", specifier = ">=0.7.25" },
     { name = "tenacity", specifier = ">=9.1.4,<10.0.0" },
     { name = "uvicorn", specifier = ">=0.48.0,<1.0.0" },
 ]
@@ -1360,16 +1360,16 @@ wheels = [
 
 [[package]]
 name = "tavily-python"
-version = "0.7.24"
+version = "0.7.25"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "httpx" },
     { name = "requests" },
     { name = "tiktoken" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/92/d3/a6a9c24bfafed30b4ce3c3d685ab00806ad631c9742441f2597ec91f0002/tavily_python-0.7.24.tar.gz", hash = "sha256:6c8954193c6472231e813fe50cbd07806bd86c7228957675eb45875a44d58296", size = 27311, upload-time = "2026-04-27T17:26:50.511Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/c3/17/c9eb61fdb8787008321724256a7b4d8537c2bd7e5dea3a9d906f344b873a/tavily_python-0.7.25.tar.gz", hash = "sha256:7fa4a4e9248db8766af1273d0604e48dbf8ff4359af683238feaba8974b259ea", size = 29755, upload-time = "2026-05-29T14:18:23.33Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/63/ce/37e3aba0f359f540bfc57eb178f73d521161761f21e0aa28749f42750b11/tavily_python-0.7.24-py3-none-any.whl", hash = "sha256:1a750108de42c4b0b46e4c1b7b64aeaf7fad7d7bac9167927edce0081fe166c9", size = 20022, upload-time = "2026-04-27T17:26:48.885Z" },
+    { url = "https://files.pythonhosted.org/packages/87/4a/b64377abab39ea156473fff10b8f395c4f6c40e609ce20490ecfae245b60/tavily_python-0.7.25-py3-none-any.whl", hash = "sha256:add36692a488d3ca9fb838d92d04e4004bf149a7260c9e12fb727963056af3b0", size = 21866, upload-time = "2026-05-29T14:18:22.063Z" },
 ]
 
 [[package]]
