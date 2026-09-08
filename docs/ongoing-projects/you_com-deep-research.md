@@ -121,7 +121,7 @@ Recommended fields:
 
 Recommended env vars:
 
-- `YOUCOM_API_KEY`
+- `YDC_API_KEY` (legacy `YOUCOM_API_KEY` is also accepted)
 - `YOUCOM_TIMEOUT`
 - `YOUCOM_DEFAULT_RESEARCH_EFFORT`
 
@@ -400,13 +400,13 @@ Update these docs so the integration is discoverable and configurable:
 
 Environment rollout status:
 
-- local `.env` should contain `YOUCOM_API_KEY`
+- local `.env` should contain `YDC_API_KEY` (legacy `YOUCOM_API_KEY` is also accepted)
 - `.env.example` should carry the placeholder and default You.com settings
 
 Recommended env example entries:
 
 ```env
-YOUCOM_API_KEY=
+YDC_API_KEY=
 YOUCOM_TIMEOUT=300
 YOUCOM_DEFAULT_RESEARCH_EFFORT=standard
 ```
